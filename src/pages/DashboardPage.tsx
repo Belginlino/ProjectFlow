@@ -164,19 +164,68 @@ export const DashboardPage: React.FC = () => {
     );
     
     setIsCreateModalOpen(false);
+    setIsCreateModalOpen(false);
     window.location.reload();
+  };
+
+  const pendingRequests = currentUser?.role === 'mentor' ? dataService.getMentorRequestsForMentor(currentUser.id) : [];
+
+  const handleAcceptMentor = (reqId: string) => {
+    dataService.respondToMentorRequest(reqId, 'accepted', currentUser!.id, currentUser!.fullName);
+    window.location.reload();
+  };
+
+  const handleRejectMentor = (reqId: string) => {
+    const reason = prompt("Optional rejection reason:");
+    dataService.respondToMentorRequest(reqId, 'rejected', currentUser!.id, currentUser!.fullName, reason || undefined);
+    window.location.reload();
+  };
+
+  const renderPendingRequests = () => {
+    if (currentUser?.role !== 'mentor' || pendingRequests.length === 0) return null;
+    return (
+      <div className="card" style={{ marginBottom: "1.25rem", width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Mentor Requests ({pendingRequests.length})</div>
+          <AlertTriangle size={16} style={{ color: "var(--warning)" }} />
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+          {pendingRequests.map(req => {
+            const proj = projects.find(p => p.id === req.projectId);
+            return (
+              <div key={req.id} style={{ padding: "1rem", background: "var(--bg-surface-elevated)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)", textAlign: 'left' }}>
+                <div style={{ fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.25rem", color: 'var(--text-primary)' }}>{proj?.title || "Project"}</div>
+                <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "1rem" }}>Message: {req.requestMessage || 'No message'}</div>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <Button size="sm" style={{ flex: 1 }} onClick={() => handleAcceptMentor(req.id)}>Accept</Button>
+                  <Button size="sm" variant="outline" style={{ flex: 1 }} onClick={() => handleRejectMentor(req.id)}>Reject</Button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
   if (!project) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-          Welcome, {firstName}!
-        </h1>
-        <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>You don't have any active projects yet.</p>
-        <button className="btn btn-primary btn-lg" style={{ gap: '0.5rem' }} onClick={() => setIsCreateModalOpen(true)}>
-          <CheckSquare2 size={18} /> Create Your First Project
-        </button>
+      <div style={{ padding: '2rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: pendingRequests.length > 0 ? 'auto' : '60vh', textAlign: 'center', marginBottom: pendingRequests.length > 0 ? '2rem' : '0' }}>
+          <h1 style={{ fontSize: '1.875rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+            Welcome, {currentUser?.role === 'mentor' ? 'Mentor ' : ''}{firstName}!
+          </h1>
+          <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>
+            {currentUser?.role === 'mentor' ? "You don't have any active projects to mentor yet." : "You don't have any active projects yet."}
+          </p>
+          {currentUser?.role !== 'mentor' && currentUser?.role !== 'evaluator' && (
+            <button className="btn btn-primary btn-lg" style={{ gap: '0.5rem' }} onClick={() => setIsCreateModalOpen(true)}>
+              <CheckSquare2 size={18} /> Create Your First Project
+            </button>
+          )}
+        </div>
+        
+        {renderPendingRequests()}
         
         <Modal
           isOpen={isCreateModalOpen}
@@ -283,18 +332,7 @@ export const DashboardPage: React.FC = () => {
 
   const isAdmin = currentUser?.role === 'institution_admin' || currentUser?.role === 'dept_admin';
 
-  const pendingRequests = currentUser?.role === 'mentor' ? dataService.getMentorRequestsForMentor(currentUser.id) : [];
 
-  const handleAcceptMentor = (reqId: string) => {
-    dataService.respondToMentorRequest(reqId, 'accepted', currentUser!.id, currentUser!.fullName);
-    window.location.reload();
-  };
-
-  const handleRejectMentor = (reqId: string) => {
-    const reason = prompt("Optional rejection reason:");
-    dataService.respondToMentorRequest(reqId, 'rejected', currentUser!.id, currentUser!.fullName, reason || undefined);
-    window.location.reload();
-  };
 
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"1.5rem" }}>
@@ -521,29 +559,7 @@ export const DashboardPage: React.FC = () => {
         </div>
       )}
       
-      {currentUser?.role === 'mentor' && pendingRequests.length > 0 && (
-        <div className="card" style={{ marginBottom: "1.25rem" }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Mentor Requests ({pendingRequests.length})</div>
-            <AlertTriangle size={16} style={{ color: "var(--warning)" }} />
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
-            {pendingRequests.map(req => {
-              const proj = projects.find(p => p.id === req.projectId);
-              return (
-                <div key={req.id} style={{ padding: "1rem", background: "var(--bg-surface-elevated)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
-                  <div style={{ fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.25rem" }}>{proj?.title || "Project"}</div>
-                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "1rem" }}>Message: {req.requestMessage || 'No message'}</div>
-                  <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <Button size="sm" style={{ flex: 1 }} onClick={() => handleAcceptMentor(req.id)}>Accept</Button>
-                    <Button size="sm" variant="outline" style={{ flex: 1 }} onClick={() => handleRejectMentor(req.id)}>Reject</Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {renderPendingRequests()}
 
       {/* Row 3: Projects + Recent Evidence */}
       <div style={{ display:"grid", gridTemplateColumns:"3fr 2fr", gap:"1.25rem" }}>

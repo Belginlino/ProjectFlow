@@ -44,8 +44,33 @@ export const IdeasPage: React.FC = () => {
     e.preventDefault();
     if (!selectedIdea || !selectedMentor) return;
     try {
-      // Typically we'd have dataService.createIdeaMentorRequest or similar.
-      alert(`Mentor request sent to ${selectedMentor} for idea: ${selectedIdea.title}`);
+      // Create a temporary/draft project for this idea to attach the mentor request
+      const newProj = dataService.createProject(
+        {
+          title: selectedIdea.title,
+          description: selectedIdea.problemStatement,
+          status: 'draft',
+          institutionId: currentUser?.institutionId || 'inst-default',
+          academicYear: '2026-2027',
+          semester: 'Fall',
+          createdBy: currentUser?.id || "anon",
+          team: {
+            members: [{ uid: currentUser?.id || "anon", fullName: currentUser?.fullName || "User", email: '', projectRole: 'lead', joinedAt: new Date().toISOString() }],
+          }
+        },
+        currentUser?.id || "anon",
+        currentUser?.fullName || "User"
+      );
+
+      dataService.createMentorRequest(
+        newProj.id,
+        selectedMentor,
+        currentUser?.id || "anon",
+        currentUser?.institutionId || "inst",
+        mentorRequestMessage
+      );
+
+      alert(`Mentor request sent to ${availableMentors.find(m => m.id === selectedMentor)?.fullName || 'Mentor'}! They will see it in their Dashboard.`);
       setIsMentorModalOpen(false);
       setSelectedMentor('');
     } catch (err: any) {
