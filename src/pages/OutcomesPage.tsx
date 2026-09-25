@@ -12,6 +12,15 @@ import { BookOpen, Award, CheckCircle, Plus, Sparkles, MessageSquare } from 'luc
 export const OutcomesPage: React.FC = () => {
   const { currentUser } = useAuth();
   const project = dataService.getProjects()[0];
+  
+  if (!project) {
+    return (
+      <div style={{ padding: '3rem', textAlign: 'center' }}>
+        <p style={{ color: 'var(--text-secondary)' }}>You don't have any active projects.</p>
+      </div>
+    );
+  }
+
   const outcomes = dataService.getLearningOutcomes();
   const skills = dataService.getSkills();
   const [reflections, setReflections] = useState<Reflection[]>(() => dataService.getReflections(project.id));

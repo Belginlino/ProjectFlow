@@ -42,6 +42,12 @@ import {
 } from './seedData';
 
 class ProjectFlowDataService {
+  private currentUserContext: any = null;
+
+  public setCurrentUserContext(user: any) {
+    this.currentUserContext = user;
+  }
+
   private projects: Project[] = [];
   private requirements: Requirement[] = [];
   private tasks: Task[] = [];
@@ -181,7 +187,18 @@ class ProjectFlowDataService {
 
   // --- PROJECTS ---
   public getProjects(): Project[] {
-    return [...this.projects];
+    const user = this.currentUserContext;
+    if (!user) return [...this.projects];
+    
+    if (user.role === 'institution_admin' || user.role === 'dept_admin') {
+      return this.projects.filter(p => p.institutionId === user.institutionId);
+    }
+    
+    return this.projects.filter(p => 
+      p.team.members.some(m => m.uid === user.id) || 
+      p.mentorId === user.id ||
+      p.createdBy === user.id
+    );
   }
 
 

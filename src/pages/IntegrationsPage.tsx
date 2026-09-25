@@ -213,6 +213,19 @@ export const IntegrationsPage: React.FC = () => {
     }
   };
 
+  if (!project) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem', padding: '3rem', textAlign: 'center' }}>
+        <h1 style={{ fontSize: '1.625rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+          Integrations & Evidence Sources
+        </h1>
+        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+          You don't have any active projects to connect integrations to. Create a project first on your Dashboard.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
       <div>

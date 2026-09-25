@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile, UserRole } from '../types';
 import { auth, db } from '../lib/firebase';
+import { dataService } from '../services/dataService';
 import { 
   onAuthStateChanged, 
   signInWithPopup, 
@@ -38,6 +39,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    dataService.setCurrentUserContext(currentUser);
+  }, [currentUser]);
 
   const fetchOrCreateUser = async (firebaseUser: User, overrideName?: string, overrideRole?: UserRole) => {
     const userRef = doc(db, 'users', firebaseUser.uid);

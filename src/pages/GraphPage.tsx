@@ -11,6 +11,14 @@ export const GraphPage: React.FC = () => {
   const { onOpenEvidence } = useOutletContext<{ onOpenEvidence: (ev: Evidence) => void }>();
   const project = dataService.getProjects()[0];
 
+  if (!project) {
+    return (
+      <div style={{ padding: '3rem', textAlign: 'center' }}>
+        <p style={{ color: 'var(--text-secondary)' }}>You don't have any active projects.</p>
+      </div>
+    );
+  }
+
   const requirements = dataService.getRequirements(project.id);
   const tasks = dataService.getTasks(project.id);
   const evidence = dataService.getEvidence(project.id);

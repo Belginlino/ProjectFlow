@@ -12,6 +12,15 @@ import { Plus, CheckCircle, Clock, AlertTriangle, ShieldCheck, Sparkles } from '
 export const RequirementsPage: React.FC = () => {
   const { currentUser } = useAuth();
   const project = dataService.getProjects()[0];
+  
+  if (!project) {
+    return (
+      <div style={{ padding: '3rem', textAlign: 'center' }}>
+        <p style={{ color: 'var(--text-secondary)' }}>You don't have any active projects.</p>
+      </div>
+    );
+  }
+
   const [requirements, setRequirements] = useState<Requirement[]>(() => dataService.getRequirements(project.id));
   const tasks = dataService.getTasks(project.id);
   const evidence = dataService.getEvidence(project.id);
