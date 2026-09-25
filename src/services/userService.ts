@@ -1,6 +1,7 @@
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { UserProfile } from '../types';
+import { DEMO_USERS_MAP } from './seedData';
 
 export const userService = {
   async getMentorsByInstitution(institutionId: string): Promise<UserProfile[]> {
@@ -17,11 +18,14 @@ export const userService = {
       querySnapshot.forEach((doc) => {
         mentors.push(doc.data() as UserProfile);
       });
+      if (mentors.length === 0) {
+        return Object.values(DEMO_USERS_MAP).filter(u => u.role === 'mentor' && u.institutionId === institutionId) as UserProfile[];
+      }
       
       return mentors;
     } catch (error) {
       console.error('Error fetching mentors:', error);
-      return [];
+      return Object.values(DEMO_USERS_MAP).filter(u => u.role === 'mentor' && u.institutionId === institutionId) as UserProfile[];
     }
   }
 };
