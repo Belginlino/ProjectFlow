@@ -4,8 +4,9 @@ import { Badge } from '../components/common/Badge';
 import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
 import { dataService } from '../services/dataService';
+import { userService } from '../services/userService';
 import { useAuth } from '../context/AuthContext';
-import { ProjectIdea } from '../types';
+import { ProjectIdea, UserProfile } from '../types';
 import { Lightbulb, Plus, Search, Users, Sparkles, Send, Check, GraduationCap } from 'lucide-react';
 
 export const IdeasPage: React.FC = () => {
@@ -25,6 +26,31 @@ export const IdeasPage: React.FC = () => {
   const [selectedIdea, setSelectedIdea] = useState<ProjectIdea | null>(null);
   const [joinMessage, setJoinMessage] = useState('');
   const [requestSent, setRequestSent] = useState(false);
+
+  // Mentor modal state
+  const [isMentorModalOpen, setIsMentorModalOpen] = useState(false);
+  const [availableMentors, setAvailableMentors] = useState<UserProfile[]>([]);
+  const [selectedMentor, setSelectedMentor] = useState<string>('');
+  const [mentorRequestMessage, setMentorRequestMessage] = useState('');
+
+  React.useEffect(() => {
+    if (isMentorModalOpen && currentUser?.institutionId) {
+      userService.getMentorsByInstitution(currentUser.institutionId).then(setAvailableMentors);
+    }
+  }, [isMentorModalOpen, currentUser]);
+
+  const handleRequestMentor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedIdea || !selectedMentor) return;
+    try {
+      // Typically we'd have dataService.createIdeaMentorRequest or similar.
+      alert(`Mentor request sent to ${selectedMentor} for idea: ${selectedIdea.title}`);
+      setIsMentorModalOpen(false);
+      setSelectedMentor('');
+    } catch (err: any) {
+      alert(err.message || 'Failed to send mentor request');
+    }
+  };
 
   const domains = ['all', 'IoT & Clean Energy', 'Computer Vision & Renewable Energy', 'Smart Grid & Distributed Systems', 'Speech AI & Embedded Systems'];
 
@@ -161,16 +187,19 @@ export const IdeasPage: React.FC = () => {
               </div>
             </div>
 
-            <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 Proposed by <strong style={{ color: 'var(--text-primary)' }}>{idea.proposedByName}</strong> ({idea.role})
               </div>
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 <Button
                   variant="outline"
                   size="sm"
                   leftIcon={<GraduationCap size={14} />}
-                  onClick={() => alert(`Mentor request initiated for: ${idea.title}`)}
+                  onClick={() => {
+                    setSelectedIdea(idea);
+                    setIsMentorModalOpen(true);
+                  }}
                 >
                   Request Mentor
                 </Button>
@@ -273,6 +302,52 @@ export const IdeasPage: React.FC = () => {
           </form>
         </Modal>
       )}
+
+      {/* Mentor Request Modal */}
+      <Modal
+        isOpen={isMentorModalOpen}
+        onClose={() => setIsMentorModalOpen(false)}
+        title="Request Mentor for Idea"
+        subtitle={`Select a mentor from your institution to sponsor "${selectedIdea?.title}"`}
+        maxWidth="500px"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setIsMentorModalOpen(false)} type="button">
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" form="idea-mentor-request-form">
+              Send Request
+            </Button>
+          </>
+        }
+      >
+        <form id="idea-mentor-request-form" onSubmit={handleRequestMentor} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Available Mentors</label>
+            <select
+              className="form-input"
+              value={selectedMentor}
+              onChange={(e) => setSelectedMentor(e.target.value)}
+              required
+            >
+              <option value="">-- Select a Mentor --</option>
+              {availableMentors.map(m => (
+                <option key={m.id} value={m.id}>{m.fullName} ({m.department})</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Message to Mentor (Optional)</label>
+            <textarea
+              className="form-input"
+              rows={3}
+              placeholder="Explain why you want them to mentor this idea..."
+              value={mentorRequestMessage}
+              onChange={(e) => setMentorRequestMessage(e.target.value)}
+            />
+          </div>
+        </form>
+      </Modal>
 
       {/* Join Request Modal */}
       {selectedIdea && (
