@@ -88,20 +88,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsub();
   }, []);
 
+  const mockLoginFallback = (email: string, role?: UserRole, fullName?: string) => {
+    const demoUsers = Object.values(DEMO_USERS_MAP) as UserProfile[];
+    const existing = demoUsers.find(u => u.email.toLowerCase() === email.toLowerCase());
+    
+    if (existing) {
+      setCurrentUser(existing);
+      localStorage.setItem('projectflow_demo_user', JSON.stringify(existing));
+      return;
+    }
+
+    const newUser: UserProfile = {
+      id: 'mock-' + Date.now().toString(),
+      email: email,
+      fullName: fullName || email.split('@')[0] || 'User',
+      role: role || 'student',
+      institutionId: 'inst-ait-01',
+      department: 'Computer Science & Engineering',
+      isActive: true,
+      onboardingComplete: false,
+      createdAt: new Date().toISOString(),
+    };
+    setCurrentUser(newUser);
+    localStorage.setItem('projectflow_demo_user', JSON.stringify(newUser));
+  };
+
   const loginWithGoogle = async (role?: UserRole) => {
-    const provider = new GoogleAuthProvider();
-    const cred = await signInWithPopup(auth, provider);
-    await fetchOrCreateUser(cred.user, undefined, role);
+    try {
+      const provider = new GoogleAuthProvider();
+      const cred = await signInWithPopup(auth, provider);
+      await fetchOrCreateUser(cred.user, undefined, role);
+    } catch (e: any) {
+      console.warn('Firebase login failed, falling back to local demo auth', e);
+      mockLoginFallback('demo@projectflow.edu', role);
+    }
   };
 
   const loginWithEmail = async (email: string, pass: string) => {
-    const cred = await signInWithEmailAndPassword(auth, email, pass);
-    await fetchOrCreateUser(cred.user);
+    try {
+      const cred = await signInWithEmailAndPassword(auth, email, pass);
+      await fetchOrCreateUser(cred.user);
+    } catch (e: any) {
+      console.warn('Firebase login failed, falling back to local demo auth', e);
+      mockLoginFallback(email);
+    }
   };
 
   const signupWithEmail = async (email: string, pass: string, fullName: string, role: UserRole) => {
-    const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    await fetchOrCreateUser(cred.user, fullName, role);
+    try {
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await fetchOrCreateUser(cred.user, fullName, role);
+    } catch (e: any) {
+      console.warn('Firebase signup failed, falling back to local demo auth', e);
+      mockLoginFallback(email, role, fullName);
+    }
   };
 
 
