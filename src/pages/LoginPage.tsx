@@ -13,7 +13,7 @@ const GoogleIcon = () => (
 );
 
 export const LoginPage: React.FC = () => {
-  const { loginWithGoogle, loginWithEmail, signupWithEmail, loginAsDemoUser, isLoading } = useAuth();
+  const { loginWithGoogle, loginWithEmail, signupWithEmail, isLoading } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,8 +21,8 @@ export const LoginPage: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [showDemoModal, setShowDemoModal] = useState(false);
   const [forgotSent, setForgotSent] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<import('../types').UserRole>('student');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +32,7 @@ export const LoginPage: React.FC = () => {
       if (isLogin) {
         await loginWithEmail(email, password);
       } else {
-        await signupWithEmail(email, password, fullName);
+        await signupWithEmail(email, password, fullName, selectedRole);
       }
     } catch (err: any) {
       setError(err.message || 'Authentication failed. Please check your credentials.');
@@ -44,16 +44,12 @@ export const LoginPage: React.FC = () => {
   const handleGoogle = async () => {
     setError('');
     try {
-      await loginWithGoogle();
+      await loginWithGoogle(isLogin ? undefined : selectedRole);
     } catch (err: any) {
       setError(err.message || 'Google authentication failed.');
     }
   };
 
-  const handleDemoSelect = (role: 'student' | 'mentor' | 'evaluator' | 'admin') => {
-    loginAsDemoUser(role);
-    setShowDemoModal(false);
-  };
 
   if (isLoading) {
     return (
@@ -113,13 +109,28 @@ export const LoginPage: React.FC = () => {
 
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.125rem' }}>
             {!isLogin && (
-              <div className="form-group" style={{ marginBottom: 0 }}>
-                <label className="form-label" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Full Name</label>
-                <div style={{ position: 'relative' }}>
-                  <User size={16} style={{ position: 'absolute', left: 12, top: 13, color: 'var(--text-muted)' }} />
-                  <input type="text" className="form-input" style={{ paddingLeft: '2.5rem' }} placeholder="John Doe" value={fullName} onChange={e => setFullName(e.target.value)} required />
+              <>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Full Name</label>
+                  <div style={{ position: 'relative' }}>
+                    <User size={16} style={{ position: 'absolute', left: 12, top: 13, color: 'var(--text-muted)' }} />
+                    <input type="text" className="form-input" style={{ paddingLeft: '2.5rem' }} placeholder="John Doe" value={fullName} onChange={e => setFullName(e.target.value)} required />
+                  </div>
                 </div>
-              </div>
+                <div className="form-group" style={{ marginBottom: 0 }}>
+                  <label className="form-label" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Role</label>
+                  <select 
+                    className="form-select" 
+                    value={selectedRole} 
+                    onChange={e => setSelectedRole(e.target.value as any)}
+                  >
+                    <option value="student">Student</option>
+                    <option value="mentor">Mentor</option>
+                    <option value="evaluator">Evaluator</option>
+                    <option value="institution_admin">Admin</option>
+                  </select>
+                </div>
+              </>
             )}
             
             <div className="form-group" style={{ marginBottom: 0 }}>
@@ -173,96 +184,10 @@ export const LoginPage: React.FC = () => {
             </button>
           </div>
 
-          {/* Hackathon Try Demo Section */}
-          <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)', textAlign: 'center' }}>
-            <button
-              type="button"
-              onClick={() => setShowDemoModal(true)}
-              className="btn btn-outline"
-              style={{ width: '100%', justifyContent: 'center', gap: '0.5rem', background: 'var(--bg-surface-elevated)', border: '1px dashed var(--border-highlight)' }}
-            >
-              <Sparkles size={16} style={{ color: 'var(--text-primary)' }} />
-              <span style={{ fontWeight: 600 }}>Explore Demo (1-Click Role Login)</span>
-            </button>
-          </div>
         </div>
       </div>
 
-      {/* Demo Role Selector Modal */}
-      {showDemoModal && (
-        <div className="modal-backdrop">
-          <div className="modal-content" style={{ maxWidth: 480 }}>
-            <div className="modal-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Sparkles size={18} />
-                <h2 className="modal-title">Select Hackathon Demo Role</h2>
-              </div>
-              <button className="btn-icon" onClick={() => setShowDemoModal(false)}>✕</button>
-            </div>
-            <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <p style={{ fontSize: '0.8375rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                Instant access to pre-seeded Smart Campus Energy Monitoring Platform data with full permissions.
-              </p>
 
-              <button
-                className="card"
-                onClick={() => handleDemoSelect('student')}
-                style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', cursor: 'pointer', textAlign: 'left', border: '1px solid var(--border-default)', transition: 'all 120ms ease' }}
-              >
-                <div style={{ width: 40, height: 40, borderRadius: '10px', background: 'var(--info-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--info)' }}>
-                  <GraduationCap size={20} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>Student Demo — Belgin C.</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lead Full-Stack Developer • Submit Evidence & Respond to CRs</div>
-                </div>
-              </button>
-
-              <button
-                className="card"
-                onClick={() => handleDemoSelect('mentor')}
-                style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', cursor: 'pointer', textAlign: 'left', border: '1px solid var(--border-default)', transition: 'all 120ms ease' }}
-              >
-                <div style={{ width: 40, height: 40, borderRadius: '10px', background: 'var(--success-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--success)' }}>
-                  <ShieldCheck size={20} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>Mentor Demo — Dr. Meena Swaminathan</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Faculty Project Mentor • Review Evidence & Issue Change Requests</div>
-                </div>
-              </button>
-
-              <button
-                className="card"
-                onClick={() => handleDemoSelect('evaluator')}
-                style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', cursor: 'pointer', textAlign: 'left', border: '1px solid var(--border-default)', transition: 'all 120ms ease' }}
-              >
-                <div style={{ width: 40, height: 40, borderRadius: '10px', background: 'var(--warning-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--warning)' }}>
-                  <Award size={20} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>Evaluator Demo — Prof. Rajesh Nair</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Academic Evaluator • Conduct Viva & "Why This Score?" Rubric</div>
-                </div>
-              </button>
-
-              <button
-                className="card"
-                onClick={() => handleDemoSelect('admin')}
-                style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', cursor: 'pointer', textAlign: 'left', border: '1px solid var(--border-default)', transition: 'all 120ms ease' }}
-              >
-                <div style={{ width: 40, height: 40, borderRadius: '10px', background: 'var(--danger-bg)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--danger)' }}>
-                  <Settings size={20} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.9375rem', color: 'var(--text-primary)' }}>Admin Demo — Dr. Sunita Kulkarni</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Department Dean • Institutional Analytics & Audit Logs</div>
-                </div>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

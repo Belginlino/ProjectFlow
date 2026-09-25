@@ -512,12 +512,16 @@ export const EvidenceGraphVisualizer: React.FC<EvidenceGraphVisualizerProps> = (
                         fontSize: '0.65rem',
                         fontWeight: 700,
                         textTransform: 'uppercase',
-                        color: '#0369A1',
-                        background: '#E0F2FE',
+                        color: ev.type === 'github_pr' ? '#18181B' : '#0369A1',
+                        background: ev.type === 'github_pr' ? '#F4F4F5' : '#E0F2FE',
                         padding: '0.15rem 0.45rem',
                         borderRadius: '9999px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.2rem',
                       }}
                     >
+                      {ev.type === 'github_pr' && <GitPullRequest size={10} />}
                       {ev.type.replace('_', ' ')}
                     </span>
                   </div>

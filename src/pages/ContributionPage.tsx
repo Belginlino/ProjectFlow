@@ -15,7 +15,11 @@ import {
   Sparkles,
   MessageSquare,
   Award,
+  GitBranch,
+  GitCommit,
 } from 'lucide-react';
+
+
 
 export const ContributionPage: React.FC = () => {
   const { currentRole, currentUser } = useAuth();
@@ -145,8 +149,40 @@ export const ContributionPage: React.FC = () => {
           </div>
         </div>
 
+        {/* GitHub Raw Activity Metrics */}
+        <div style={{ marginTop: '1.5rem' }}>
+          <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <GitBranch size={14} /> GitHub Activity (Raw Signals)
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+            <div style={{ padding: '0.85rem', background: 'var(--bg-app)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', opacity: 0.8 }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>COMMITS</span>
+              <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <GitCommit size={16} /> {selectedStudent.uid === 'usr-student-belgin' ? '14' : selectedStudent.uid === 'usr-student-arun' ? '12' : '7'}
+              </div>
+            </div>
+            <div style={{ padding: '0.85rem', background: 'var(--bg-app)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', opacity: 0.8 }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>PULL REQUESTS</span>
+              <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <GitPullRequest size={16} /> {selectedStudent.uid === 'usr-student-belgin' ? '4 (3 merged)' : selectedStudent.uid === 'usr-student-arun' ? '2 (1 merged)' : '1'}
+              </div>
+            </div>
+            <div style={{ padding: '0.85rem', background: 'var(--bg-app)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-md)', opacity: 0.8 }}>
+              <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>REVIEWS</span>
+              <div style={{ fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <MessageSquare size={16} /> {selectedStudent.uid === 'usr-student-belgin' ? '2' : selectedStudent.uid === 'usr-student-arun' ? '1' : '1'}
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Explainable Multi-Factor Metric Chips */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginTop: '1.5rem' }}>
+        <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-subtle)' }}>
+          <h4 style={{ fontSize: '0.8125rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Award size={14} /> Verified Academic Evidence
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+
           <div style={{ padding: '0.85rem', background: 'var(--bg-surface-elevated)', borderRadius: 'var(--radius-md)' }}>
             <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>VERIFIED TASKS</span>
             <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#f8fafc' }}>
@@ -181,6 +217,7 @@ export const ContributionPage: React.FC = () => {
               1
             </div>
           </div>
+          </div>
         </div>
 
         {/* Explainable Qualitative Breakdown */}
@@ -189,10 +226,11 @@ export const ContributionPage: React.FC = () => {
             Contribution Evidence
           </h4>
           <p style={{ fontSize: '0.875rem', color: '#e2e8f0' }}>
-            Contribution is supported by multiple evidence sources.
+            Contribution is supported by multiple evidence sources. GitHub activity is one contribution signal and is not used alone to determine individual contribution.
           </p>
         </div>
       </div>
+
 
       {/* Evidence-Grounded Viva Voce Section */}
       <div>

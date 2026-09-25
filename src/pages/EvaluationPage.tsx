@@ -21,10 +21,7 @@ export const EvaluationPage: React.FC = () => {
   if (!project || !rubric) {
     return (
       <div style={{ padding: '3rem', textAlign: 'center' }}>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>No project or evaluation rubric loaded.</p>
-        <Button variant="primary" onClick={() => { dataService.loadSampleProject(); window.location.reload(); }}>
-          Load Sample Project
-        </Button>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>No project or evaluation rubric available.</p>
       </div>
     );
   }

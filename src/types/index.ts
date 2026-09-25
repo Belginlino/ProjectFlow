@@ -7,8 +7,10 @@ export interface UserProfile {
   role: UserRole;
   institutionId: string;
   department: string;
+  rollNumber?: string;
   avatarUrl?: string;
   isActive: boolean;
+  onboardingComplete?: boolean;
   createdAt: string;
 }
 

@@ -25,6 +25,15 @@ export const EvidencePage: React.FC = () => {
   const { onOpenEvidence } = useOutletContext<{ onOpenEvidence: (ev: Evidence) => void }>();
   const { currentUser } = useAuth();
   const project = dataService.getProjects()[0];
+  
+  if (!project) {
+    return (
+      <div style={{ padding: '3rem', textAlign: 'center' }}>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>You don't have any active projects yet.</p>
+      </div>
+    );
+  }
+
   const [evidenceList, setEvidenceList] = useState<Evidence[]>(() => dataService.getEvidence(project.id));
   const tasks = dataService.getTasks(project.id);
   const requirements = dataService.getRequirements(project.id);
@@ -160,6 +169,18 @@ export const EvidencePage: React.FC = () => {
       </div>
 
       {/* Evidence Grid */}
+      {filteredEvidence.length === 0 ? (
+        <div style={{ padding: '4rem 1rem', textAlign: 'center', background: 'var(--bg-surface-elevated)', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--border-default)' }}>
+          <ShieldCheck size={48} style={{ color: 'var(--text-muted)', marginBottom: '1rem', opacity: 0.5 }} />
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No evidence submitted yet.</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '1.5rem', maxWidth: 400, margin: '0 auto 1.5rem' }}>
+            Submit deliverables, GitHub PRs, or documents to prove your project work.
+          </p>
+          <Button leftIcon={<Upload size={16} />} onClick={() => setIsModalOpen(true)}>
+            Submit Evidence
+          </Button>
+        </div>
+      ) : (
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))', gap: '1.25rem' }}>
         {filteredEvidence.map((ev) => (
           <Card
@@ -202,6 +223,7 @@ export const EvidencePage: React.FC = () => {
           </Card>
         ))}
       </div>
+      )}
 
       {/* Upload Evidence Modal */}
       <Modal

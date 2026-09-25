@@ -6,8 +6,9 @@ import { Input } from '../components/common/Input';
 import { Modal } from '../components/common/Modal';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../context/AuthContext';
-import { Task, TaskStatus, TaskPriority, Requirement } from '../types';
-import { Plus, ShieldCheck, Clock, User, ArrowRight, CornerDownRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { Task, TaskStatus, TaskPriority, Requirement, Evidence } from '../types';
+import { Plus, ShieldCheck, Clock, User, ArrowRight, CornerDownRight, CheckCircle2, Sparkles, GitBranch, Link2, CheckSquare2 } from 'lucide-react';
+
 
 const COLUMNS: Array<{ status: TaskStatus; label: string }> = [
   { status: 'backlog', label: 'Backlog' },
@@ -26,10 +27,7 @@ export const TasksPage: React.FC = () => {
   if (!project) {
     return (
       <div style={{ padding: '3rem', textAlign: 'center' }}>
-        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>No project loaded.</p>
-        <Button variant="primary" onClick={() => { dataService.loadSampleProject(); window.location.reload(); }}>
-          Load Sample Project
-        </Button>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>You don't have any active projects yet.</p>
       </div>
     );
   }
@@ -47,6 +45,37 @@ export const TasksPage: React.FC = () => {
   const [priority, setPriority] = useState<TaskPriority>('medium');
   const [assigneeId, setAssigneeId] = useState(currentUser?.id || '');
   const [dueDate, setDueDate] = useState('2026-10-15');
+
+  // PR Linking Modal
+  const [isPrModalOpen, setIsPrModalOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState('');
+  const [selectedPr, setSelectedPr] = useState('');
+
+  const [prs, setPrs] = useState<any[]>([]); // To be fetched from real backend
+
+  const handleLinkPr = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTaskId || !selectedPr) return;
+
+    const pr = prs.find(p => p.id === selectedPr);
+    if (!pr) return;
+
+    dataService.createEvidence({
+      projectId: project.id,
+      ownerId: currentUser?.id || 'anon',
+      ownerName: currentUser?.fullName || 'User',
+      title: `GitHub PR: ${pr.title}`,
+      description: `Linked Pull Request by @${pr.author}. State: ${pr.state}`,
+      type: 'github_pr',
+      sourceType: 'github',
+      sourceUrl: pr.url,
+    }, selectedTaskId, 'task', 'implements', currentUser?.id, currentUser?.fullName);
+
+    setTasks(dataService.getTasks(project.id));
+    setIsPrModalOpen(false);
+    setSelectedPr('');
+  };
+
 
   const handleAiSuggestTasks = () => {
     if (!requirements || requirements.length === 0) return;
@@ -142,6 +171,18 @@ export const TasksPage: React.FC = () => {
       </div>
 
       {/* Kanban Grid */}
+      {tasks.length === 0 ? (
+        <div style={{ padding: '4rem 1rem', textAlign: 'center', background: 'var(--bg-surface-elevated)', borderRadius: 'var(--radius-lg)', border: '1px dashed var(--border-default)' }}>
+          <CheckSquare2 size={48} style={{ color: 'var(--text-muted)', marginBottom: '1rem', opacity: 0.5 }} />
+          <h3 style={{ fontSize: '1.125rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No tasks created yet</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', marginBottom: '1.5rem', maxWidth: 400, margin: '0 auto 1.5rem' }}>
+            Break down your requirements into actionable tasks to start tracking your development progress.
+          </p>
+          <Button leftIcon={<Plus size={16} />} onClick={() => setIsModalOpen(true)}>
+            Create First Task
+          </Button>
+        </div>
+      ) : (
       <div className="kanban-grid">
         {COLUMNS.map((col) => {
           const colTasks = tasks.filter((t) => t.status === col.status);
@@ -235,6 +276,17 @@ export const TasksPage: React.FC = () => {
                             </button>
                           ))}
                         </div>
+
+                        <div style={{ marginTop: '0.5rem' }}>
+                          <button
+                            type="button"
+                            onClick={() => { setSelectedTaskId(task.id); setIsPrModalOpen(true); }}
+                            className="btn btn-outline btn-sm"
+                            style={{ padding: '0.15rem 0.4rem', fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.2rem', width: '100%', justifyContent: 'center' }}
+                          >
+                            <GitBranch size={10} /> Link GitHub PR
+                          </button>
+                        </div>
                       </div>
                     );
                   })
@@ -244,6 +296,7 @@ export const TasksPage: React.FC = () => {
           );
         })}
       </div>
+      )}
 
       {/* Create Task Modal */}
       <Modal
@@ -332,6 +385,40 @@ export const TasksPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+
+      {/* Link PR Modal */}
+      <Modal
+        isOpen={isPrModalOpen}
+        onClose={() => setIsPrModalOpen(false)}
+        title="Link GitHub Pull Request"
+        subtitle="Associate a GitHub PR to this task to generate Contribution Evidence"
+      >
+        <form onSubmit={handleLinkPr} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="form-group">
+            <label className="form-label">Select Open or Merged PR</label>
+            <select
+              className="form-select"
+              value={selectedPr}
+              onChange={(e) => setSelectedPr(e.target.value)}
+              required
+            >
+              <option value="" disabled>Select PR...</option>
+              {prs.map((pr) => (
+                <option key={pr.id} value={pr.id}>
+                  {pr.title} ({pr.state})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
+            <Button variant="outline" type="button" onClick={() => setIsPrModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" leftIcon={<Link2 size={16} />}>Link Pull Request</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
+

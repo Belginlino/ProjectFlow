@@ -18,6 +18,8 @@ import { IdeasPage } from './pages/IdeasPage';
 import { TeamPage } from './pages/TeamPage';
 import { PortfolioPage } from './pages/PortfolioPage';
 import { AdminPage } from './pages/AdminPage';
+import { IntegrationsPage } from './pages/IntegrationsPage';
+import { OnboardingPage } from './pages/OnboardingPage';
 
 const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -33,6 +35,11 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  const { currentUser } = useAuth();
+  if (currentUser && !currentUser.onboardingComplete && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
   }
 
   return <>{children}</>;
@@ -65,10 +72,13 @@ export const App: React.FC = () => {
         <Routes>
           <Route path="/login" element={<AuthRedirect><LoginPage /></AuthRedirect>} />
           
+          <Route path="/onboarding" element={<AuthGuard><OnboardingPage /></AuthGuard>} />
+          
           <Route element={<AuthGuard><AppLayout /></AuthGuard>}>
             <Route path="/" element={<DashboardPage />} />
             <Route path="/ideas" element={<RoleGuard allowedRoles={['student']}><IdeasPage /></RoleGuard>} />
             <Route path="/team" element={<RoleGuard allowedRoles={['student', 'institution_admin', 'dept_admin']}><TeamPage /></RoleGuard>} />
+            <Route path="/integrations" element={<RoleGuard allowedRoles={['student', 'institution_admin', 'dept_admin']}><IntegrationsPage /></RoleGuard>} />
             <Route path="/requirements" element={<RoleGuard allowedRoles={['student', 'institution_admin', 'dept_admin']}><RequirementsPage /></RoleGuard>} />
             <Route path="/tasks" element={<RoleGuard allowedRoles={['student', 'mentor']}><TasksPage /></RoleGuard>} />
             <Route path="/evidence" element={<RoleGuard allowedRoles={['student', 'mentor', 'evaluator', 'institution_admin']}><EvidencePage /></RoleGuard>} />

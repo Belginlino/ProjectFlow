@@ -6,7 +6,7 @@ import { dataService } from "../../services/dataService";
 import { AppNotification } from "../../types";
 
 export const Header: React.FC = () => {
-  const { currentUser, currentRole, loginAsDemoUser, logout } = useAuth();
+  const { currentUser, currentRole, logout } = useAuth();
   const navigate = useNavigate();
 
   const [showCreate, setShowCreate] = useState(false);
@@ -61,21 +61,16 @@ export const Header: React.FC = () => {
     if (n.link) navigate(n.link);
   };
 
-  const handleResetData = () => {
-    dataService.resetDemoData();
-    setShowProfile(false);
-    window.location.reload();
-  };
+
 
   return (
     <header className="top-header">
       {/* Left: Institution info & Search bar */}
       <div style={{ display: "flex", alignItems: "center", gap: "1.25rem", flex: 1 }}>
         <div style={{ fontSize: "0.8125rem", color: "var(--text-muted)", fontWeight: 500, whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-          Apex Institute of Technology
+          {currentUser?.institutionId || 'Apex Institute of Technology'}
           <span style={{ color: "var(--border-highlight)" }}>·</span>
-          AY 2026–2027
-          <span style={{ marginLeft: '0.5rem', background: 'var(--danger-bg)', color: 'var(--danger)', padding: '0.15rem 0.4rem', borderRadius: '4px', fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.05em' }}>DEMO MODE</span>
+          {currentUser?.department || 'AY 2026–2027'}
         </div>
 
         {/* Global Search Input */}
@@ -241,42 +236,7 @@ export const Header: React.FC = () => {
                 <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{currentUser?.email}</div>
               </div>
 
-              {/* Demo Switchers */}
-              <div style={{ padding: "0.25rem 0.5rem", fontSize: "0.6875rem", fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase" }}>
-                Quick Demo Persona:
-              </div>
-              {[
-                { role: "student" as const, label: "Student: Belgin C." },
-                { role: "mentor" as const, label: "Mentor: Dr. Meena" },
-                { role: "evaluator" as const, label: "Evaluator: Prof. Rajesh" },
-                { role: "admin" as const, label: "Admin: Dr. Sunita" },
-              ].map((p) => (
-                <button
-                  key={p.role}
-                  onClick={() => {
-                    loginAsDemoUser(p.role);
-                    setShowProfile(false);
-                    navigate("/");
-                  }}
-                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", padding: "0.4rem 0.75rem", fontSize: "0.8125rem", color: "var(--text-secondary)", background: "transparent", border: "none", borderRadius: "var(--radius-xs)", cursor: "pointer", fontFamily: "var(--font-sans)" }}
-                  onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-surface-elevated)")}
-                  onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-                >
-                  <span>{p.label}</span>
-                  {(currentRole === p.role || (p.role === 'admin' && currentRole === 'institution_admin')) && <Check size={13} style={{ color: "var(--success)" }} />}
-                </button>
-              ))}
 
-              <div style={{ height: 1, background: "var(--border-subtle)", margin: "0.35rem 0" }} />
-
-              <button
-                onClick={handleResetData}
-                style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "100%", padding: "0.45rem 0.75rem", fontSize: "0.8125rem", color: "var(--text-primary)", background: "transparent", border: "none", borderRadius: "var(--radius-xs)", cursor: "pointer", fontFamily: "var(--font-sans)" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-surface-elevated)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-              >
-                <RefreshCw size={13} /> Reset Demo Data
-              </button>
 
               <button
                 onClick={() => {

@@ -57,107 +57,35 @@ class ProjectFlowDataService {
   private auditLogs: AuditLog[] = [];
   private ideas: ProjectIdea[] = [];
   private notifications: AppNotification[] = [];
+  private institutions: string[] = ['Apex Institute of Technology', 'SXCCE'];
 
   constructor() {
     this.loadFromStorage();
   }
 
   public seedInitialData() {
-    this.projects = [INITIAL_PROJECT];
-    this.requirements = [...INITIAL_REQUIREMENTS];
-    this.tasks = [...INITIAL_TASKS];
-    this.evidence = [...INITIAL_EVIDENCE];
-    this.evidenceLinks = [...INITIAL_EVIDENCE_LINKS];
-    this.reviews = [...INITIAL_REVIEWS];
-    this.changeRequests = [...INITIAL_CHANGE_REQUESTS];
-    this.healthAlerts = [...INITIAL_HEALTH_ALERTS];
-    this.rubrics = [...INITIAL_RUBRICS];
-    this.evaluations = [...INITIAL_EVALUATIONS];
-    this.vivaQuestions = [...INITIAL_VIVA_QUESTIONS];
-    this.outcomes = [...INITIAL_OUTCOMES];
-    this.skills = [...INITIAL_SKILLS];
-    this.reflections = [...INITIAL_REFLECTIONS];
-    this.ideas = [...INITIAL_IDEAS];
-    this.notifications = [...INITIAL_NOTIFICATIONS];
-    this.auditLogs = [
-      {
-        id: 'audit-01',
-        institutionId: 'inst-ait-01',
-        projectId: 'proj-smart-campus-energy',
-        userId: 'usr-student-belgin',
-        userName: 'Belgin C.',
-        action: 'CREATE_PROJECT',
-        entityType: 'project',
-        entityId: 'proj-smart-campus-energy',
-        details: { title: 'Smart Campus Energy Monitoring Platform' },
-        timestamp: '2026-08-10T09:30:00Z',
-      },
-      {
-        id: 'audit-02',
-        institutionId: 'inst-ait-01',
-        projectId: 'proj-smart-campus-energy',
-        userId: 'usr-student-belgin',
-        userName: 'Belgin C.',
-        action: 'UPLOAD_EVIDENCE',
-        entityType: 'evidence',
-        entityId: 'ev-01',
-        details: { title: 'GitHub PR #42: JWT Authentication & Role Interceptors' },
-        timestamp: '2026-09-12T18:30:00Z',
-      },
-      {
-        id: 'audit-03',
-        institutionId: 'inst-ait-01',
-        projectId: 'proj-smart-campus-energy',
-        userId: 'usr-mentor-meena',
-        userName: 'Dr. Meena Swaminathan',
-        action: 'VERIFY_EVIDENCE',
-        entityType: 'evidence',
-        entityId: 'ev-01',
-        details: { status: 'mentor_verified' },
-        timestamp: '2026-09-13T10:30:00Z',
-      },
-      {
-        id: 'audit-04',
-        institutionId: 'inst-ait-01',
-        projectId: 'proj-smart-campus-energy',
-        userId: 'usr-mentor-meena',
-        userName: 'Dr. Meena Swaminathan',
-        action: 'CREATE_CHANGE_REQUEST',
-        entityType: 'change_request',
-        entityId: 'cr-01',
-        details: { title: 'CR-01: Sensor Data Negative Value Validation' },
-        timestamp: '2026-09-19T14:00:00Z',
-      },
-      {
-        id: 'audit-05',
-        institutionId: 'inst-ait-01',
-        projectId: 'proj-smart-campus-energy',
-        userId: 'usr-student-arun',
-        userName: 'Arun Kumar',
-        action: 'UPLOAD_REVISION',
-        entityType: 'evidence',
-        entityId: 'ev-05',
-        details: { title: 'GitHub PR #48: Sensor Ingestion Validation (Resolves CR-01)' },
-        timestamp: '2026-09-22T16:00:00Z',
-      },
-      {
-        id: 'audit-06',
-        institutionId: 'inst-ait-01',
-        projectId: 'proj-smart-campus-energy',
-        userId: 'usr-mentor-meena',
-        userName: 'Dr. Meena Swaminathan',
-        action: 'VERIFY_CHANGE_REQUEST',
-        entityType: 'change_request',
-        entityId: 'cr-01',
-        details: { status: 'verified', resolvedEvidenceId: 'ev-05' },
-        timestamp: '2026-09-23T11:00:00Z',
-      },
-    ];
+    this.projects = [];
+    this.requirements = [];
+    this.tasks = [];
+    this.evidence = [];
+    this.evidenceLinks = [];
+    this.reviews = [];
+    this.changeRequests = [];
+    this.healthAlerts = [];
+    this.rubrics = [];
+    this.evaluations = [];
+    this.vivaQuestions = [];
+    this.outcomes = [];
+    this.skills = [];
+    this.reflections = [];
+    this.ideas = [];
+    this.notifications = [];
+    this.auditLogs = [];
     this.saveToStorage();
   }
 
   public resetDemoData() {
-    localStorage.removeItem('projectflow_data_store_v1');
+    localStorage.removeItem('projectflow_data_store_v2');
     this.seedInitialData();
   }
 
@@ -167,7 +95,7 @@ class ProjectFlowDataService {
 
   private loadFromStorage() {
     try {
-      const stored = localStorage.getItem('projectflow_data_store_v1');
+      const stored = localStorage.getItem('projectflow_data_store_v2');
       if (stored) {
         const parsed = JSON.parse(stored);
         if (parsed.projects && parsed.projects.length > 0) {
@@ -218,7 +146,7 @@ class ProjectFlowDataService {
         ideas: this.ideas,
         notifications: this.notifications,
       };
-      localStorage.setItem('projectflow_data_store_v1', JSON.stringify(payload));
+      localStorage.setItem('projectflow_data_store_v2', JSON.stringify(payload));
     } catch {
       // ignore
     }
@@ -248,6 +176,7 @@ class ProjectFlowDataService {
   public getProjects(): Project[] {
     return [...this.projects];
   }
+
 
   public getProject(id: string): Project | undefined {
     return this.projects.find((p) => p.id === id);

@@ -20,6 +20,7 @@ export const Sidebar: React.FC = () => {
       ]},
       { label: "Workspace", items: [
           { to: "/team",         label: "Team",             icon: <Users size={15} /> },
+          { to: "/integrations", label: "Integrations",     icon: <Settings size={15} /> },
           { to: "/requirements", label: "Requirements",     icon: <FileText size={15} /> },
           { to: "/tasks",        label: "Tasks",            icon: <CheckSquare size={15} /> },
           { to: "/evidence",     label: "Evidence Vault",   icon: <ShieldCheck size={15} /> },
@@ -34,6 +35,7 @@ export const Sidebar: React.FC = () => {
       { label: "Learning", items: [
           { to: "/outcomes",     label: "Learning Outcomes", icon: <BookOpen size={15} /> },
       ]},
+
     ],
     mentor: [
       { label: "Overview", items: [

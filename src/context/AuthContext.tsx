@@ -19,10 +19,10 @@ interface AuthContextType {
   currentRole: UserRole | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  loginWithGoogle: () => Promise<void>;
+  loginWithGoogle: (role?: UserRole) => Promise<void>;
   loginWithEmail: (email: string, pass: string) => Promise<void>;
-  signupWithEmail: (email: string, pass: string, fullName: string) => Promise<void>;
-  loginAsDemoUser: (role: 'student' | 'mentor' | 'evaluator' | 'admin') => void;
+  signupWithEmail: (email: string, pass: string, fullName: string, role: UserRole) => Promise<void>;
+  updateUserProfile: (data: Partial<UserProfile>) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -39,7 +39,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  const fetchOrCreateUser = async (firebaseUser: User, overrideName?: string) => {
+  const fetchOrCreateUser = async (firebaseUser: User, overrideName?: string, overrideRole?: UserRole) => {
     const userRef = doc(db, 'users', firebaseUser.uid);
     const snap = await getDoc(userRef);
     if (snap.exists()) {
@@ -51,10 +51,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         id: firebaseUser.uid,
         email: firebaseUser.email || '',
         fullName: overrideName || firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-        role: 'student',
+        role: overrideRole || 'student',
         institutionId: 'inst-ait-01',
         department: 'Computer Science & Engineering',
         isActive: true,
+        onboardingComplete: false,
         createdAt: new Date().toISOString(),
       };
       await setDoc(userRef, newUser);
@@ -82,10 +83,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsub();
   }, []);
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = async (role?: UserRole) => {
     const provider = new GoogleAuthProvider();
     const cred = await signInWithPopup(auth, provider);
-    await fetchOrCreateUser(cred.user);
+    await fetchOrCreateUser(cred.user, undefined, role);
   };
 
   const loginWithEmail = async (email: string, pass: string) => {
@@ -93,19 +94,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await fetchOrCreateUser(cred.user);
   };
 
-  const signupWithEmail = async (email: string, pass: string, fullName: string) => {
+  const signupWithEmail = async (email: string, pass: string, fullName: string, role: UserRole) => {
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
-    await fetchOrCreateUser(cred.user, fullName);
+    await fetchOrCreateUser(cred.user, fullName, role);
   };
 
-  const loginAsDemoUser = (role: 'student' | 'mentor' | 'evaluator' | 'admin') => {
-    let demoProfile: UserProfile = DEMO_USERS_MAP.student1;
-    if (role === 'mentor') demoProfile = DEMO_USERS_MAP.mentor;
-    else if (role === 'evaluator') demoProfile = DEMO_USERS_MAP.evaluator;
-    else if (role === 'admin') demoProfile = DEMO_USERS_MAP.admin;
 
-    setCurrentUser(demoProfile);
-    localStorage.setItem('projectflow_demo_user', JSON.stringify(demoProfile));
+
+  const updateUserProfile = async (data: Partial<UserProfile>) => {
+    if (!currentUser) return;
+    const userRef = doc(db, 'users', currentUser.id);
+    const updatedUser = { ...currentUser, ...data };
+    await setDoc(userRef, updatedUser, { merge: true });
+    setCurrentUser(updatedUser);
+    localStorage.setItem('projectflow_demo_user', JSON.stringify(updatedUser));
   };
 
   const logout = async () => {
@@ -128,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         loginWithGoogle,
         loginWithEmail,
         signupWithEmail,
-        loginAsDemoUser,
+        updateUserProfile,
         logout,
       }}
     >

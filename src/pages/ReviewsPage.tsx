@@ -24,6 +24,14 @@ export const ReviewsPage: React.FC = () => {
   const { currentUser, currentRole } = useAuth();
   const project = dataService.getProjects()[0];
 
+  if (!project) {
+    return (
+      <div style={{ padding: '3rem', textAlign: 'center' }}>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1rem' }}>No projects are currently assigned for review.</p>
+      </div>
+    );
+  }
+
   const [evidenceList, setEvidenceList] = useState<Evidence[]>(() => dataService.getEvidence(project.id));
   const [reviews, setReviews] = useState<Review[]>(() => dataService.getReviews(project.id));
   const [changeRequests, setChangeRequests] = useState<ChangeRequest[]>(() => dataService.getChangeRequests(project.id));

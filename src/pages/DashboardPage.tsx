@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useOutletContext, Link } from "react-router-dom";
 import { dataService } from "../services/dataService";
 import { useAuth } from "../context/AuthContext";
 import { Evidence } from "../types";
-import { ArrowRight, AlertTriangle, Activity, Shield, CheckSquare2, TrendingUp, ChevronRight, Clock } from "lucide-react";
+import { ArrowRight, AlertTriangle, Activity, Shield, CheckSquare2, TrendingUp, ChevronRight, Clock, Plus } from "lucide-react";
+import { Modal } from "../components/common/Modal";
+import { Button } from "../components/common/Button";
 
 const C = ({ value, size = 96, stroke = 8, color = "#111111" }: { value: number; size?: number; stroke?: number; color?: string }) => {
   const r = (size - stroke) / 2;
@@ -105,6 +107,35 @@ export const DashboardPage: React.FC = () => {
   const project = projects[0];
   const firstName = currentUser?.fullName?.split(" ")[0] || "User";
 
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newProjectTitle, setNewProjectTitle] = useState("");
+  const [newProjectDesc, setNewProjectDesc] = useState("");
+
+  const handleCreateProject = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newProjectTitle.trim()) return;
+    
+    dataService.createProject(
+      {
+        title: newProjectTitle,
+        description: newProjectDesc,
+        status: 'active',
+        institutionId: 'inst-default',
+        academicYear: '2026-2027',
+        semester: 'Fall',
+        createdBy: currentUser?.id || "anon",
+        team: {
+          members: [{ uid: currentUser?.id || "anon", fullName: currentUser?.fullName || "User", email: '', projectRole: 'lead', joinedAt: new Date().toISOString() }],
+        }
+      },
+      currentUser?.id || "anon",
+      currentUser?.fullName || "User"
+    );
+    
+    setIsCreateModalOpen(false);
+    window.location.reload();
+  };
+
   if (!project) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', textAlign: 'center' }}>
@@ -112,9 +143,44 @@ export const DashboardPage: React.FC = () => {
           Welcome, {firstName}!
         </h1>
         <p style={{ color: 'var(--text-muted)', marginBottom: '2rem' }}>You don't have any active projects yet.</p>
-        <button className="btn btn-primary btn-lg" style={{ gap: '0.5rem' }}>
+        <button className="btn btn-primary btn-lg" style={{ gap: '0.5rem' }} onClick={() => setIsCreateModalOpen(true)}>
           <CheckSquare2 size={18} /> Create Your First Project
         </button>
+        
+        <Modal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          title="Create New Project"
+          subtitle="Set up your workspace to start tracking tasks and evidence."
+        >
+          <form onSubmit={handleCreateProject} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div className="form-group">
+              <label className="form-label">Project Title</label>
+              <input
+                className="form-input"
+                placeholder="e.g. Smart Campus Energy Monitoring"
+                value={newProjectTitle}
+                onChange={(e) => setNewProjectTitle(e.target.value)}
+                required
+                autoFocus
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label">Description (Optional)</label>
+              <textarea
+                className="form-input"
+                placeholder="Briefly describe the project goals..."
+                value={newProjectDesc}
+                onChange={(e) => setNewProjectDesc(e.target.value)}
+                rows={3}
+              />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <Button variant="outline" type="button" onClick={() => setIsCreateModalOpen(false)}>Cancel</Button>
+              <Button type="submit" leftIcon={<Plus size={16} />}>Create Project</Button>
+            </div>
+          </form>
+        </Modal>
       </div>
     );
   }
