@@ -1,0 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap');
+
+:root {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, monospace;
+
+  /* -- Backgrounds ----------------------------------- */
+  --bg-app:              #EEEEEE;
+  --bg-surface:          #FFFFFF;
+  --bg-surface-elevated: #F7F7F7;
+  --bg-surface-hover:    #F0F0F0;
+  --bg-surface-glass:    rgba(255, 255, 255, 0.72);
+  --bg-dark:             #111111;
+  --bg-dark-hover:       #222222;
+  --bg-dark-card:        #181818;
+
+  /* -- Borders --------------------------------------- */
+  --border-subtle:    #EBEBEB;
+  --border-default:   #E0E0E0;
+  --border-highlight: #C8C8C8;
+  --border-focus:     #111111;
+
+  /* -- Text ------------------------------------------ */
+  --text-primary:   #111111;
+  --text-secondary: #555555;
+  --text-muted:     #9A9A9A;
+  --text-inverse:   #FFFFFF;
+
+  /* -- Semantic colors (muted, professional) --------- */
+  --success:        #16a34a;
+  --success-bg:     rgba(22, 163, 74, 0.08);
+  --success-border: rgba(22, 163, 74, 0.2);
+
+  --warning:        #b45309;
+  --warning-bg:     rgba(180, 83, 9, 0.08);
+  --warning-border: rgba(180, 83, 9, 0.2);
+
+  --danger:         #dc2626;
+  --danger-bg:      rgba(220, 38, 38, 0.08);
+  --danger-border:  rgba(220, 38, 38, 0.2);
+
+  --info:           #2563eb;
+  --info-bg:        rgba(37, 99, 235, 0.08);
+  --info-border:    rgba(37, 99, 235, 0.2);
+
+  /* -- Legacy compat vars used in existing components - */
+  --primary-gradient: #111111;
+  --accent-glow:      rgba(17,17,17,0.08);
+
+  --emerald-500:    #16a34a;
+  --emerald-bg:     rgba(22, 163, 74, 0.08);
+  --emerald-border: rgba(22, 163, 74, 0.2);
+
+  --amber-500:      #b45309;
+  --amber-bg:       rgba(180, 83, 9, 0.08);
+  --amber-border:   rgba(180, 83, 9, 0.2);
+
+  --rose-500:       #dc2626;
+  --rose-bg:        rgba(220, 38, 38, 0.08);
+  --rose-border:    rgba(220, 38, 38, 0.2);
+
+  --purple-500:     #7c3aed;
+  --purple-bg:      rgba(124, 58, 237, 0.08);
+  --purple-border:  rgba(124, 58, 237, 0.2);
+
+  --cyan-500:       #0891b2;
+  --cyan-bg:        rgba(8, 145, 178, 0.08);
+  --cyan-border:    rgba(8, 145, 178, 0.2);
+
+  /* -- Shadows --------------------------------------- */
+  --shadow-xs:    0 1px 2px rgba(0,0,0,0.04);
+  --shadow-sm:    0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03);
+  --shadow-md:    0 4px 20px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+  --shadow-lg:    0 10px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-glass: 0 8px 32px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9);
+
+  /* -- Radius ---------------------------------------- */
+  --radius-xs:   6px;
+  --radius-sm:   12px;
+  --radius-md:   16px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-full: 9999px;
+
+  /* -- Transitions ----------------------------------- */
+  --transition-fast:   140ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 240ms cubic-bezier(0.4, 0, 0.2, 1);
+}
