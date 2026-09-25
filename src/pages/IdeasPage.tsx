@@ -216,10 +216,21 @@ export const IdeasPage: React.FC = () => {
               <input
                 type="text"
                 className="form-input"
+                list="domain-suggestions"
                 value={domain}
                 onChange={(e) => setDomain(e.target.value)}
                 required
               />
+              <datalist id="domain-suggestions">
+                <option value="Artificial Intelligence" />
+                <option value="IoT & Clean Energy" />
+                <option value="Cybersecurity" />
+                <option value="Blockchain" />
+                <option value="Data Science" />
+                <option value="Web Development" />
+                <option value="Mobile Computing" />
+                <option value="Cloud Infrastructure" />
+              </datalist>
             </div>
 
             <div className="form-group" style={{ marginBottom: 0 }}>
@@ -227,9 +238,18 @@ export const IdeasPage: React.FC = () => {
               <input
                 type="text"
                 className="form-input"
+                list="skill-suggestions"
                 value={skillsInput}
                 onChange={(e) => setSkillsInput(e.target.value)}
               />
+              <datalist id="skill-suggestions">
+                <option value="Python, FastAPI, React" />
+                <option value="TensorFlow, PyTorch, Python" />
+                <option value="React, Node.js, MongoDB" />
+                <option value="C++, Microcontrollers, IoT" />
+                <option value="Solidity, Web3.js, React" />
+                <option value="Java, Spring Boot, MySQL" />
+              </datalist>
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
