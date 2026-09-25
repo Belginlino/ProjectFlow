@@ -8,6 +8,7 @@ import { dataService } from '../../services/dataService';
 import { useAuth } from '../../context/AuthContext';
 import { CheckSquare2, Plus, X } from 'lucide-react';
 import { Button } from '../common/Button';
+import { Modal } from '../common/Modal';
 
 export const AppLayout: React.FC = () => {
   const [activeEvidence, setActiveEvidence] = useState<Evidence | null>(null);
@@ -109,71 +110,66 @@ export const AppLayout: React.FC = () => {
         </main>
       </div>
 
-      {isCreateModalOpen && (
-        <div className="modal-backdrop">
-          <div className="modal-content" style={{ maxWidth: 520 }}>
-            <div className="modal-header">
-              <h2 className="modal-title">Create New Project</h2>
-              <button className="btn-icon" onClick={() => setIsCreateModalOpen(false)}>
-                <X size={18} />
-              </button>
-            </div>
-            <form onSubmit={handleCreateProject}>
-              <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Project Title</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g. Smart Campus IoT Energy Optimization"
-                    value={newTitle}
-                    onChange={(e) => setNewTitle(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-group" style={{ marginBottom: 0 }}>
-                  <label className="form-label">Description</label>
-                  <textarea
-                    className="form-input"
-                    rows={3}
-                    placeholder="Brief objective and scope of the academic project..."
-                    value={newDesc}
-                    onChange={(e) => setNewDesc(e.target.value)}
-                  />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Academic Year</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={newYear}
-                      onChange={(e) => setNewYear(e.target.value)}
-                    />
-                  </div>
-                  <div className="form-group" style={{ marginBottom: 0 }}>
-                    <label className="form-label">Semester / Term</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={newSemester}
-                      onChange={(e) => setNewSemester(e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <Button variant="secondary" onClick={() => setIsCreateModalOpen(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" variant="primary">
-                  Create Project
-                </Button>
-              </div>
-            </form>
+      <Modal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        title="Create New Project"
+        maxWidth="520px"
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setIsCreateModalOpen(false)} type="button">
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" form="create-project-form">
+              Create Project
+            </Button>
+          </>
+        }
+      >
+        <form id="create-project-form" onSubmit={handleCreateProject} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Project Title</label>
+            <input
+              type="text"
+              className="form-input"
+              placeholder="e.g. Smart Campus IoT Energy Optimization"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              required
+            />
           </div>
-        </div>
-      )}
+          <div className="form-group" style={{ marginBottom: 0 }}>
+            <label className="form-label">Description</label>
+            <textarea
+              className="form-input"
+              rows={3}
+              placeholder="Brief objective and scope of the academic project..."
+              value={newDesc}
+              onChange={(e) => setNewDesc(e.target.value)}
+            />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label">Academic Year</label>
+              <input
+                type="text"
+                className="form-input"
+                value={newYear}
+                onChange={(e) => setNewYear(e.target.value)}
+              />
+            </div>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label className="form-label">Semester / Term</label>
+              <input
+                type="text"
+                className="form-input"
+                value={newSemester}
+                onChange={(e) => setNewSemester(e.target.value)}
+              />
+            </div>
+          </div>
+        </form>
+      </Modal>
 
       <EvidenceDrawer
         evidence={activeEvidence}
