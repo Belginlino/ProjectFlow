@@ -1,0 +1,70 @@
+# =============================================================
+# ProjectFlow -- .gitignore
+# Firebase + React/Vite + Node/TypeScript monorepo
+# =============================================================
+
+# ---- Environment & Secrets ----------------------------------
+.env
+.env.local
+.env.*.local
+.env.development
+.env.staging
+.env.production
+frontend/.env
+frontend/.env.local
+frontend/.env.*.local
+functions/.env
+functions/.env.local
+functions/.env.*.local
+**/serviceAccountKey.json
+**/firebase-adminsdk*.json
+
+# ---- Node / npm ---------------------------------------------
+node_modules/
+frontend/node_modules/
+functions/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ---- Build Outputs ------------------------------------------
+frontend/dist/
+frontend/dist-ssr/
+functions/lib/
+functions/dist/
+*.tsbuildinfo
+
+# ---- Firebase CLI -------------------------------------------
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+
+# ---- Vite ---------------------------------------------------
+frontend/.vite/
+
+# ---- OS / Editor --------------------------------------------
+.DS_Store
+Thumbs.db
+Desktop.ini
+.idea/
+.vscode/
+*.suo
+*.sw?
+
+# ---- Python (legacy backend removed) -----------------------
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+.mypy_cache/
+.pytest_cache/
+
+# ---- Logs & Temp --------------------------------------------
+*.log
+*.tmp
+*.temp
+.cache/

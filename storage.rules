@@ -1,0 +1,35 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidFileSize() {
+      return request.resource.size < 25 * 1024 * 1024; // 25 MB limit
+    }
+
+    function isValidMimeType() {
+      return request.resource.contentType.matches('application/pdf')
+          || request.resource.contentType.matches('image/.*')
+          || request.resource.contentType.matches('text/.*')
+          || request.resource.contentType.matches('application/json')
+          || request.resource.contentType.matches('application/zip')
+          || request.resource.contentType.matches('application/vnd.openxmlformats-officedocument.*');
+    }
+
+    // Projects evidence file storage
+    match /projects/{projectId}/evidence/{evidenceId}/{fileName} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isValidFileSize() && isValidMimeType();
+      allow delete: if isAuthenticated();
+    }
+
+    // Public / static avatars
+    match /avatars/{userId}/{fileName} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.uid == userId && isValidFileSize();
+    }
+  }
+}

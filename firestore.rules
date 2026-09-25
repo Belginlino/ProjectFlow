@@ -1,0 +1,166 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function getUserRole() {
+      return getUserData().role;
+    }
+
+    function getUserInstitution() {
+      return getUserData().institutionId;
+    }
+
+    function isSameInstitution(institutionId) {
+      return isAuthenticated() && getUserInstitution() == institutionId;
+    }
+
+    function isMemberOfProject(projectId) {
+      let projectData = get(/databases/$(database)/documents/projects/$(projectId)).data;
+      return isAuthenticated() && (
+        request.auth.uid == projectData.createdBy ||
+        request.auth.uid in projectData.memberIds ||
+        getUserRole() in ['mentor', 'evaluator', 'dept_admin', 'institution_admin']
+      );
+    }
+
+    function isProjectMentor(projectId) {
+      let projectData = get(/databases/$(database)/documents/projects/$(projectId)).data;
+      return isAuthenticated() && (
+        request.auth.uid == projectData.mentorId ||
+        getUserRole() in ['mentor', 'dept_admin', 'institution_admin']
+      );
+    }
+
+    function isEvaluator() {
+      return isAuthenticated() && getUserRole() in ['evaluator', 'dept_admin', 'institution_admin'];
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() in ['dept_admin', 'institution_admin'];
+    }
+
+    // Institutions Collection
+    match /institutions/{institutionId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // Rubrics Collection
+    match /rubrics/{rubricId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin() || isEvaluator();
+    }
+
+    // Skills Taxonomy
+    match /skills/{skillId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Learning Outcomes (CO, PO, PSO)
+    match /learningOutcomes/{outcomeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Audit Logs
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update, delete: if false; // Immutable audit trail
+    }
+
+    // Projects Root Collection
+    match /projects/{projectId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (isMemberOfProject(projectId) || isProjectMentor(projectId) || isAdmin());
+      allow delete: if isAdmin();
+
+      // Requirements Subcollection
+      match /requirements/{requirementId} {
+        allow read: if isMemberOfProject(projectId);
+        allow create, update: if isMemberOfProject(projectId);
+        allow delete: if isProjectMentor(projectId) || isAdmin();
+      }
+
+      // Tasks Subcollection
+      match /tasks/{taskId} {
+        allow read: if isMemberOfProject(projectId);
+        allow create, update: if isMemberOfProject(projectId);
+        allow delete: if isMemberOfProject(projectId);
+      }
+
+      // Evidence Subcollection (First-class entity)
+      match /evidence/{evidenceId} {
+        allow read: if isMemberOfProject(projectId);
+        allow create: if isMemberOfProject(projectId);
+        allow update: if isMemberOfProject(projectId);
+        allow delete: if request.auth.uid == resource.data.ownerId || isAdmin();
+      }
+
+      // Evidence Links Subcollection (Evidence Graph)
+      match /evidenceLinks/{linkId} {
+        allow read: if isMemberOfProject(projectId);
+        allow create, update, delete: if isMemberOfProject(projectId);
+      }
+
+      // Reviews Subcollection
+      match /reviews/{reviewId} {
+        allow read: if isMemberOfProject(projectId);
+        allow create, update: if isProjectMentor(projectId) || isEvaluator();
+        allow delete: if isAdmin();
+      }
+
+      // Change Requests Subcollection
+      match /changeRequests/{changeRequestId} {
+        allow read: if isMemberOfProject(projectId);
+        allow create: if isProjectMentor(projectId);
+        allow update: if isMemberOfProject(projectId); // Students update revision status; Mentors verify
+        allow delete: if isProjectMentor(projectId) || isAdmin();
+      }
+
+      // Reflections Subcollection
+      match /reflections/{reflectionId} {
+        allow read: if isMemberOfProject(projectId);
+        allow create, update: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+        allow delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      }
+
+      // Evaluations Subcollection ("Why this score?")
+      match /evaluations/{evaluationId} {
+        allow read: if isMemberOfProject(projectId);
+        allow create, update: if isEvaluator();
+        allow delete: if isAdmin();
+      }
+
+      // Viva Subcollection
+      match /viva/{vivaId} {
+        allow read: if isMemberOfProject(projectId);
+        allow create, update: if isEvaluator() || isProjectMentor(projectId);
+        allow delete: if isAdmin();
+      }
+
+      // Health Alerts Subcollection
+      match /healthAlerts/{alertId} {
+        allow read: if isMemberOfProject(projectId);
+        allow write: if isProjectMentor(projectId) || isAdmin();
+      }
+    }
+  }
+}
