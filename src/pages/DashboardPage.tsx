@@ -6,6 +6,8 @@ import { Evidence } from "../types";
 import { ArrowRight, AlertTriangle, Activity, Shield, CheckSquare2, TrendingUp, ChevronRight, Clock, Plus } from "lucide-react";
 import { Modal } from "../components/common/Modal";
 import { Button } from "../components/common/Button";
+import { userService } from "../services/userService";
+import { UserProfile } from "../types";
 
 const C = ({ value, size = 96, stroke = 8, color = "#111111" }: { value: number; size?: number; stroke?: number; color?: string }) => {
   const r = (size - stroke) / 2;
@@ -110,6 +112,35 @@ export const DashboardPage: React.FC = () => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [newProjectTitle, setNewProjectTitle] = useState("");
   const [newProjectDesc, setNewProjectDesc] = useState("");
+  
+  const [isMentorModalOpen, setIsMentorModalOpen] = useState(false);
+  const [availableMentors, setAvailableMentors] = useState<UserProfile[]>([]);
+  const [selectedMentor, setSelectedMentor] = useState<string>("");
+  const [mentorRequestMessage, setMentorRequestMessage] = useState("");
+
+  React.useEffect(() => {
+    if (isMentorModalOpen && currentUser?.institutionId) {
+      userService.getMentorsByInstitution(currentUser.institutionId).then(setAvailableMentors);
+    }
+  }, [isMentorModalOpen, currentUser]);
+
+  const handleAssignMentor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedMentor || !project) return;
+    try {
+      dataService.createMentorRequest(
+        project.id,
+        selectedMentor,
+        currentUser?.id || "anon",
+        currentUser?.institutionId || "inst",
+        mentorRequestMessage
+      );
+      setIsMentorModalOpen(false);
+      window.location.reload();
+    } catch (err: any) {
+      alert(err.message || "Failed to send mentor request");
+    }
+  };
 
   const handleCreateProject = (e: React.FormEvent) => {
     e.preventDefault();
@@ -119,8 +150,8 @@ export const DashboardPage: React.FC = () => {
       {
         title: newProjectTitle,
         description: newProjectDesc,
-        status: 'active',
-        institutionId: 'inst-default',
+        status: 'draft',
+        institutionId: currentUser?.institutionId || 'inst-default',
         academicYear: '2026-2027',
         semester: 'Fall',
         createdBy: currentUser?.id || "anon",
@@ -252,6 +283,19 @@ export const DashboardPage: React.FC = () => {
 
   const isAdmin = currentUser?.role === 'institution_admin' || currentUser?.role === 'dept_admin';
 
+  const pendingRequests = currentUser?.role === 'mentor' ? dataService.getMentorRequestsForMentor(currentUser.id) : [];
+
+  const handleAcceptMentor = (reqId: string) => {
+    dataService.respondToMentorRequest(reqId, 'accepted', currentUser!.id, currentUser!.fullName);
+    window.location.reload();
+  };
+
+  const handleRejectMentor = (reqId: string) => {
+    const reason = prompt("Optional rejection reason:");
+    dataService.respondToMentorRequest(reqId, 'rejected', currentUser!.id, currentUser!.fullName, reason || undefined);
+    window.location.reload();
+  };
+
   return (
     <div style={{ display:"flex", flexDirection:"column", gap:"1.5rem" }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
@@ -377,29 +421,57 @@ export const DashboardPage: React.FC = () => {
 
             <div className="card">
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem" }}>
-                <div style={{ fontSize:"0.6rem", fontWeight:700, color:"var(--text-muted)", letterSpacing:"0.08em", textTransform:"uppercase" }}>Project Health</div>
-                <Activity size={16} style={{ color: alerts.length > 0 ? "var(--warning)" : "var(--success)" }} />
+                <div style={{ fontSize:"0.6rem", fontWeight:700, color:"var(--text-muted)", letterSpacing:"0.08em", textTransform:"uppercase" }}>Mentor Assignment</div>
+                <Shield size={16} style={{ color: project.status === 'active' ? "var(--success)" : "var(--warning)" }} />
               </div>
-              <div style={{ display:"flex", alignItems:"baseline", gap:"0.5rem", marginBottom:"1.125rem" }}>
-                <span style={{ fontSize:"2.75rem", fontWeight:900, color:"var(--text-primary)", letterSpacing:"-0.04em", lineHeight:1 }}>{healthPct}%</span>
-                <span style={{ fontSize:"0.875rem", fontWeight:700, color: alerts.length > 2 ? "var(--danger)" : "var(--success)" }}>
-                  {alerts.length > 2 ? "↓ At risk" : "↑ Healthy"}
-                </span>
-              </div>
-              <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
-                {alerts.length === 0 ? (
-                  <div style={{ textAlign:"center", padding:"1rem", color:"var(--text-muted)", fontSize:"0.8125rem" }}>✓ No active health issues</div>
-                ) : alerts.slice(0,3).map(alert => (
-                  <div key={alert.id} style={{ display:"flex", alignItems:"flex-start", gap:"0.5rem", padding:"0.5rem 0.625rem", background: alert.severity === "critical" ? "var(--danger-bg)" : "var(--warning-bg)", borderRadius:"var(--radius-sm)", border:`1px solid ${alert.severity === "critical" ? "var(--danger-border)" : "var(--warning-border)"}` }}>
-                    <AlertTriangle size={12} style={{ color: alert.severity === "critical" ? "var(--danger)" : "var(--warning)", flexShrink:0, marginTop:"1px" }} />
-                    <span style={{ fontSize:"0.75rem", color:"var(--text-secondary)", lineHeight:1.4 }}>{(alert.reason || alert.description || alert.title || 'Diagnostic warning').slice(0,65)}</span>
+              
+              <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem", marginBottom:"1.125rem" }}>
+                {project.status === 'active' || project.mentorId ? (
+                  <div style={{ padding: "0.75rem", background: "var(--bg-surface-elevated)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
+                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Mentor:</div>
+                    <div style={{ fontSize: "0.875rem", fontWeight: 700 }}>{project.mentorName}</div>
+                    <div style={{ fontSize: "0.75rem", color: "var(--success)", fontWeight: 700, marginTop: "0.25rem" }}>✓ Approved</div>
                   </div>
-                ))}
+                ) : project.status === 'mentor_pending' ? (
+                  <div style={{ padding: "0.75rem", background: "var(--bg-surface-elevated)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
+                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Mentor Request:</div>
+                    <div style={{ fontSize: "0.875rem", fontWeight: 700 }}>⏳ Awaiting Approval</div>
+                  </div>
+                ) : project.status === 'mentor_rejected' ? (
+                  <div style={{ padding: "0.75rem", background: "var(--danger-bg)", borderRadius: "var(--radius-sm)", border: "1px solid var(--danger-border)" }}>
+                    <div style={{ fontSize: "0.75rem", color: "var(--danger)" }}>Mentor Request: Rejected</div>
+                    <Button variant="outline" size="sm" style={{ marginTop: "0.5rem", width: "100%" }} onClick={() => setIsMentorModalOpen(true)}>Select Another Mentor</Button>
+                  </div>
+                ) : (
+                  <div style={{ padding: "0.75rem", background: "var(--bg-surface-elevated)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
+                    <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>Mentor: Not Assigned</div>
+                    <Button variant="outline" size="sm" style={{ marginTop: "0.5rem", width: "100%" }} onClick={() => setIsMentorModalOpen(true)}>Assign Mentor</Button>
+                  </div>
+                )}
               </div>
-              <Link to="/health" className="btn btn-outline btn-sm" style={{ width:"100%", justifyContent:"center", marginTop:"0.875rem" }}>
-                Investigate <ArrowRight size={13} />
-              </Link>
             </div>
+
+            <Modal isOpen={isMentorModalOpen} onClose={() => setIsMentorModalOpen(false)} title="Assign Mentor" subtitle="Select a mentor from your institution to guide your project.">
+              <form onSubmit={handleAssignMentor} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="form-group">
+                  <label className="form-label">Select Mentor</label>
+                  <select className="form-input" value={selectedMentor} onChange={(e) => setSelectedMentor(e.target.value)} required>
+                    <option value="" disabled>Select an available mentor...</option>
+                    {availableMentors.map(m => (
+                      <option key={m.id} value={m.id}>{m.fullName} - {m.department}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Request Message (Optional)</label>
+                  <textarea className="form-input" rows={3} placeholder="Briefly introduce your project..." value={mentorRequestMessage} onChange={(e) => setMentorRequestMessage(e.target.value)} />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+                  <Button variant="outline" type="button" onClick={() => setIsMentorModalOpen(false)}>Cancel</Button>
+                  <Button type="submit">Send Request</Button>
+                </div>
+              </form>
+            </Modal>
 
             <div className="card">
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem" }}>
@@ -445,6 +517,30 @@ export const DashboardPage: React.FC = () => {
              <PR label="PO-03 (Design/Development)" value={76} />
              <PR label="PO-05 (Modern Tool Usage)" value={92} />
              <PR label="PO-09 (Individual & Team Work)" value={85} />
+          </div>
+        </div>
+      )}
+      
+      {currentUser?.role === 'mentor' && pendingRequests.length > 0 && (
+        <div className="card" style={{ marginBottom: "1.25rem" }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div style={{ fontSize: '0.6rem', fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Mentor Requests ({pendingRequests.length})</div>
+            <AlertTriangle size={16} style={{ color: "var(--warning)" }} />
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem' }}>
+            {pendingRequests.map(req => {
+              const proj = projects.find(p => p.id === req.projectId);
+              return (
+                <div key={req.id} style={{ padding: "1rem", background: "var(--bg-surface-elevated)", borderRadius: "var(--radius-sm)", border: "1px solid var(--border-subtle)" }}>
+                  <div style={{ fontSize: "0.875rem", fontWeight: 700, marginBottom: "0.25rem" }}>{proj?.title || "Project"}</div>
+                  <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginBottom: "1rem" }}>Message: {req.requestMessage || 'No message'}</div>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <Button size="sm" style={{ flex: 1 }} onClick={() => handleAcceptMentor(req.id)}>Accept</Button>
+                    <Button size="sm" variant="outline" style={{ flex: 1 }} onClick={() => handleRejectMentor(req.id)}>Reject</Button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

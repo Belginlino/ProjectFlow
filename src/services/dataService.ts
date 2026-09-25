@@ -18,6 +18,8 @@ import {
   VerificationStatus,
   ProjectIdea,
   AppNotification,
+  MentorRequest,
+  ProjectStatus,
 } from '../types';
 
 import {
@@ -57,6 +59,7 @@ class ProjectFlowDataService {
   private auditLogs: AuditLog[] = [];
   private ideas: ProjectIdea[] = [];
   private notifications: AppNotification[] = [];
+  private mentorRequests: MentorRequest[] = [];
   private institutions: string[] = ['Apex Institute of Technology', 'SXCCE'];
 
   constructor() {
@@ -116,6 +119,8 @@ class ProjectFlowDataService {
           if (parsed.auditLogs) this.auditLogs = parsed.auditLogs;
           if (parsed.ideas) this.ideas = parsed.ideas;
           if (parsed.notifications) this.notifications = parsed.notifications;
+          if (parsed.mentorRequests) this.mentorRequests = parsed.mentorRequests;
+          if (parsed.institutions) this.institutions = parsed.institutions;
           return;
         }
       }
@@ -145,6 +150,8 @@ class ProjectFlowDataService {
         auditLogs: this.auditLogs,
         ideas: this.ideas,
         notifications: this.notifications,
+        mentorRequests: this.mentorRequests,
+        institutions: this.institutions,
       };
       localStorage.setItem('projectflow_data_store_v2', JSON.stringify(payload));
     } catch {
@@ -195,7 +202,7 @@ class ProjectFlowDataService {
     return newProj;
   }
 
-  public updateProjectStatus(projectId: string, status: Project['status'], userId: string, userName: string): Project {
+  public updateProjectStatus(projectId: string, status: ProjectStatus, userId: string, userName: string): Project {
     const p = this.getProject(projectId);
     if (!p) throw new Error('Project not found');
     p.status = status;
@@ -204,6 +211,96 @@ class ProjectFlowDataService {
     this.saveToStorage();
     return p;
   }
+
+  // --- MENTOR REQUESTS ---
+  public getMentorRequestsForProject(projectId: string): MentorRequest[] {
+    return this.mentorRequests.filter(mr => mr.projectId === projectId);
+  }
+
+  public getMentorRequestsForMentor(mentorId: string): MentorRequest[] {
+    return this.mentorRequests.filter(mr => mr.mentorId === mentorId && mr.status === 'pending');
+  }
+
+  public createMentorRequest(
+    projectId: string,
+    mentorId: string,
+    studentLeadId: string,
+    institutionId: string,
+    requestMessage: string
+  ): MentorRequest {
+    // Check if already pending
+    const existing = this.mentorRequests.find(mr => mr.projectId === projectId && mr.status === 'pending');
+    if (existing) throw new Error('A mentor request is already pending for this project.');
+
+    const newReq: MentorRequest = {
+      id: `mreq-${Date.now()}`,
+      projectId,
+      mentorId,
+      studentLeadId,
+      institutionId,
+      status: 'pending',
+      requestMessage,
+      requestedAt: new Date().toISOString()
+    };
+    
+    this.mentorRequests.push(newReq);
+    
+    // Update project status to mentor_pending
+    this.updateProjectStatus(projectId, 'mentor_pending', studentLeadId, 'Student');
+    
+    this.addNotification({
+      userId: mentorId,
+      title: 'New Mentor Request',
+      message: `You have received a new mentor request for a project.`,
+      type: 'info'
+    });
+    
+    this.saveToStorage();
+    return newReq;
+  }
+
+  public respondToMentorRequest(
+    requestId: string,
+    status: 'accepted' | 'rejected',
+    mentorId: string,
+    mentorName: string,
+    mentorResponse?: string
+  ): MentorRequest {
+    const req = this.mentorRequests.find(r => r.id === requestId);
+    if (!req) throw new Error('Request not found');
+    
+    req.status = status;
+    req.mentorResponse = mentorResponse;
+    req.respondedAt = new Date().toISOString();
+
+    const project = this.projects.find(p => p.id === req.projectId);
+    
+    if (status === 'accepted') {
+      if (project) {
+        project.mentorId = mentorId;
+        project.mentorName = mentorName;
+        this.updateProjectStatus(req.projectId, 'active', mentorId, mentorName);
+        this.addNotification({
+          userId: req.studentLeadId,
+          title: 'Mentor Request Accepted',
+          message: `${mentorName} has accepted your mentor request.`,
+          type: 'success'
+        });
+      }
+    } else if (status === 'rejected') {
+      this.updateProjectStatus(req.projectId, 'mentor_rejected', mentorId, mentorName);
+      this.addNotification({
+        userId: req.studentLeadId,
+        title: 'Mentor Request Rejected',
+        message: `${mentorName} has rejected your mentor request.`,
+        type: 'warning'
+      });
+    }
+
+    this.saveToStorage();
+    return req;
+  }
+
 
   // --- REQUIREMENTS ---
   public getRequirements(projectId: string): Requirement[] {

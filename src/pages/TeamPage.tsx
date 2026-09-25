@@ -99,8 +99,8 @@ export const TeamPage: React.FC = () => {
 
         <div className="card" style={{ padding: '1.25rem' }}>
           <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Faculty Mentor</div>
-          <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.25rem' }}>{project.mentorName || 'Dr. Meena Swaminathan'}</div>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Academic supervisor</span>
+          <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '0.25rem' }}>{project.mentorName || 'Not Assigned'}</div>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{project.status === 'mentor_pending' ? 'Request pending' : 'Academic supervisor'}</span>
         </div>
 
         <div className="card" style={{ padding: '1.25rem' }}>

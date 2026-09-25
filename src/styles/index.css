@@ -618,3 +618,62 @@ body {
   box-shadow: 0 0 0 2px rgba(17, 17, 17, 0.12);
 }
 
+/* --- Print Styles for Portfolio Export --- */
+@media print {
+  html, body, .app-container, .main-content, .content-body, #root {
+    background: white !important;
+    background-image: none !important;
+    color: black !important;
+  }
+  
+  /* Hide UI elements */
+  .sidebar, .top-header, .demo-banner {
+    display: none !important;
+  }
+  
+  /* Hide specific buttons in the portfolio */
+  button {
+    display: none !important;
+  }
+  
+  /* Expand main content */
+  .main-content {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+  
+  .content-body {
+    padding: 2rem !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+  }
+
+  /* Force background colors and remove shadows for cleaner printing */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    box-shadow: none !important;
+  }
+  
+  /* Override dark cards to be light for printing (saves ink, looks cleaner) */
+  .card-dark {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    color: #0f172a !important;
+  }
+  
+  .card-dark h1, .card-dark h2, .card-dark p, .card-dark span {
+    color: #0f172a !important;
+  }
+
+  /* Avoid page breaks inside cards */
+  .card, .metric-card, .card-dark, .graph-node-card {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    border: 1px solid #e2e8f0 !important;
+    background: white !important;
+  }
+}

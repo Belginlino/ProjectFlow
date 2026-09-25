@@ -14,7 +14,7 @@ export interface UserProfile {
   createdAt: string;
 }
 
-export type ProjectStatus = 'proposal' | 'approval' | 'active' | 'review' | 'completed' | 'archived';
+export type ProjectStatus = 'draft' | 'mentor_pending' | 'mentor_rejected' | 'proposal' | 'approval' | 'active' | 'review' | 'completed' | 'archived';
 
 export interface ProjectMember {
   uid: string;
@@ -40,6 +40,21 @@ export interface Project {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export type MentorRequestStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
+
+export interface MentorRequest {
+  id: string;
+  projectId: string;
+  studentLeadId: string;
+  mentorId: string;
+  institutionId: string;
+  status: MentorRequestStatus;
+  requestMessage?: string;
+  mentorResponse?: string;
+  requestedAt: string;
+  respondedAt?: string;
 }
 
 export type RequirementPriority = 'low' | 'medium' | 'high' | 'critical';
