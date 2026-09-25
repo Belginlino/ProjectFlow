@@ -23,6 +23,7 @@ export const IdeasPage: React.FC = () => {
   const [skillsInput, setSkillsInput] = useState('Python, FastAPI, React');
 
   // Join Request modal state
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false);
   const [selectedIdea, setSelectedIdea] = useState<ProjectIdea | null>(null);
   const [joinMessage, setJoinMessage] = useState('');
   const [requestSent, setRequestSent] = useState(false);
@@ -207,7 +208,10 @@ export const IdeasPage: React.FC = () => {
                   variant="outline"
                   size="sm"
                   leftIcon={<Users size={14} />}
-                  onClick={() => setSelectedIdea(idea)}
+                  onClick={() => {
+                    setSelectedIdea(idea);
+                    setIsJoinModalOpen(true);
+                  }}
                 >
                   Join Team {idea.joinRequests.length > 0 && `(${idea.joinRequests.length})`}
                 </Button>
@@ -304,10 +308,11 @@ export const IdeasPage: React.FC = () => {
       )}
 
       {/* Mentor Request Modal */}
-      <Modal
-        isOpen={isMentorModalOpen}
-        onClose={() => setIsMentorModalOpen(false)}
-        title="Request Mentor for Idea"
+      {selectedIdea && (
+        <Modal
+          isOpen={isMentorModalOpen}
+          onClose={() => setIsMentorModalOpen(false)}
+          title="Request Mentor for Idea"
         subtitle={`Select a mentor from your institution to sponsor "${selectedIdea?.title}"`}
         maxWidth="500px"
         footer={
@@ -348,12 +353,13 @@ export const IdeasPage: React.FC = () => {
           </div>
         </form>
       </Modal>
+      )}
 
       {/* Join Request Modal */}
       {selectedIdea && (
         <Modal
-          isOpen={Boolean(selectedIdea)}
-          onClose={() => setSelectedIdea(null)}
+          isOpen={isJoinModalOpen}
+          onClose={() => setIsJoinModalOpen(false)}
           title={`Request to Join: ${selectedIdea.title}`}
           subtitle={`Submitted to ${selectedIdea.proposedByName}`}
         >
