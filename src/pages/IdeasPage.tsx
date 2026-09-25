@@ -6,7 +6,7 @@ import { Modal } from '../components/common/Modal';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../context/AuthContext';
 import { ProjectIdea } from '../types';
-import { Lightbulb, Plus, Search, Users, Sparkles, Send, Check } from 'lucide-react';
+import { Lightbulb, Plus, Search, Users, Sparkles, Send, Check, GraduationCap } from 'lucide-react';
 
 export const IdeasPage: React.FC = () => {
   const { currentUser } = useAuth();
@@ -165,14 +165,24 @@ export const IdeasPage: React.FC = () => {
               <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                 Proposed by <strong style={{ color: 'var(--text-primary)' }}>{idea.proposedByName}</strong> ({idea.role})
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                leftIcon={<Users size={14} />}
-                onClick={() => setSelectedIdea(idea)}
-              >
-                Join Team {idea.joinRequests.length > 0 && `(${idea.joinRequests.length})`}
-              </Button>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<GraduationCap size={14} />}
+                  onClick={() => alert(`Mentor request initiated for: ${idea.title}`)}
+                >
+                  Request Mentor
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  leftIcon={<Users size={14} />}
+                  onClick={() => setSelectedIdea(idea)}
+                >
+                  Join Team {idea.joinRequests.length > 0 && `(${idea.joinRequests.length})`}
+                </Button>
+              </div>
             </div>
           </div>
         ))}
