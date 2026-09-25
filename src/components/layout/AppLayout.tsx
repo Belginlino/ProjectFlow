@@ -151,21 +151,29 @@ export const AppLayout: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label">Academic Year</label>
-              <input
-                type="text"
+              <select
                 className="form-input"
                 value={newYear}
                 onChange={(e) => setNewYear(e.target.value)}
-              />
+              >
+                <option value="2024-2025">2024-2025</option>
+                <option value="2025-2026">2025-2026</option>
+                <option value="2026-2027">2026-2027</option>
+                <option value="2027-2028">2027-2028</option>
+              </select>
             </div>
             <div className="form-group" style={{ marginBottom: 0 }}>
               <label className="form-label">Semester / Term</label>
-              <input
-                type="text"
+              <select
                 className="form-input"
                 value={newSemester}
                 onChange={(e) => setNewSemester(e.target.value)}
-              />
+              >
+                <option value="Semester 5 - Minor Project">Semester 5 - Minor Project</option>
+                <option value="Semester 6 - Pre-Capstone">Semester 6 - Pre-Capstone</option>
+                <option value="Semester 7 - Capstone Phase I">Semester 7 - Capstone Phase I</option>
+                <option value="Semester 8 - Capstone Phase II">Semester 8 - Capstone Phase II</option>
+              </select>
             </div>
           </div>
         </form>
