@@ -17,7 +17,12 @@ export const OnboardingPage: React.FC = () => {
   const [customDepartment, setCustomDepartment] = useState('');
   const [rollNumber, setRollNumber] = useState(currentUser?.rollNumber || '');
   const [saving, setSaving] = useState(false);
-  const [registeredInstitutions, setRegisteredInstitutions] = React.useState<string[]>([]);
+  const [registeredInstitutions, setRegisteredInstitutions] = React.useState<string[]>([
+    'St. Xavier\'s College',
+    'Adithya Institute of Technology',
+    'National Institute of Technology',
+    'Indian Institute of Technology'
+  ]);
 
   const DEPARTMENTS = [
     'Computer Science & Engineering',
