@@ -50,6 +50,18 @@ export const LoginPage: React.FC = () => {
     }
   };
 
+  const handleDemoLogin = async (demoEmail: string) => {
+    setError('');
+    setSubmitting(true);
+    try {
+      await loginWithEmail(demoEmail, 'demo123');
+    } catch (err: any) {
+      setError(err.message || 'Demo login failed.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
 
   if (isLoading) {
     return (
@@ -185,9 +197,25 @@ export const LoginPage: React.FC = () => {
           </div>
 
         </div>
+        </div>
+
+        {/* Demo 1-Click Logins */}
+        <div style={{ marginTop: '2rem', width: '100%', maxWidth: 420 }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.75rem', textAlign: 'center' }}>
+            Hackathon Demo Quick Login
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+            <Button variant="outline" size="sm" onClick={() => handleDemoLogin('belgin@ait.edu')} disabled={submitting}>
+              Student
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleDemoLogin('meena@ait.edu')} disabled={submitting}>
+              Mentor
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => handleDemoLogin('admin@projectflow.com')} disabled={submitting}>
+              Admin
+            </Button>
+          </div>
+        </div>
       </div>
-
-
-    </div>
   );
 };
