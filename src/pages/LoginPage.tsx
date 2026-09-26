@@ -205,13 +205,13 @@ export const LoginPage: React.FC = () => {
             Hackathon Demo Quick Login
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
-            <Button variant="outline" size="sm" onClick={() => handleDemoLogin('belgin@ait.edu')} disabled={submitting}>
+            <Button variant="outline" size="sm" onClick={() => handleDemoLogin('belgin@projectflow.edu')} disabled={submitting}>
               Student
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleDemoLogin('meena@ait.edu')} disabled={submitting}>
+            <Button variant="outline" size="sm" onClick={() => handleDemoLogin('mentor@projectflow.edu')} disabled={submitting}>
               Mentor
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleDemoLogin('admin@projectflow.com')} disabled={submitting}>
+            <Button variant="outline" size="sm" onClick={() => handleDemoLogin('admin@projectflow.edu')} disabled={submitting}>
               Admin
             </Button>
           </div>

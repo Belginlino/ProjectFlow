@@ -25,6 +25,7 @@ export const DEMO_USERS_MAP = {
     department: 'Computer Science & Engineering',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Belgin',
     isActive: true,
+    onboardingComplete: true,
     createdAt: '2026-08-01T09:00:00Z',
   },
   student2: {
@@ -36,6 +37,7 @@ export const DEMO_USERS_MAP = {
     department: 'Computer Science & Engineering',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Arun',
     isActive: true,
+    onboardingComplete: true,
     createdAt: '2026-08-01T09:00:00Z',
   },
   student3: {
@@ -47,6 +49,7 @@ export const DEMO_USERS_MAP = {
     department: 'Computer Science & Engineering',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=PriyaS',
     isActive: true,
+    onboardingComplete: true,
     createdAt: '2026-08-01T09:00:00Z',
   },
   student4: {
@@ -58,6 +61,7 @@ export const DEMO_USERS_MAP = {
     department: 'Computer Science & Engineering',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rahul',
     isActive: true,
+    onboardingComplete: true,
     createdAt: '2026-08-01T09:00:00Z',
   },
   mentor: {
@@ -69,6 +73,7 @@ export const DEMO_USERS_MAP = {
     department: 'Computer Science & Engineering',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Meena',
     isActive: true,
+    onboardingComplete: true,
     createdAt: '2026-08-01T09:00:00Z',
   },
   evaluator: {
@@ -80,6 +85,7 @@ export const DEMO_USERS_MAP = {
     department: 'Electrical & Computer Engineering',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Rajesh',
     isActive: true,
+    onboardingComplete: true,
     createdAt: '2026-08-01T09:00:00Z',
   },
   admin: {
@@ -91,6 +97,7 @@ export const DEMO_USERS_MAP = {
     department: 'Academic Dean Office',
     avatarUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sunita',
     isActive: true,
+    onboardingComplete: true,
     createdAt: '2026-08-01T09:00:00Z',
   },
 };

@@ -148,9 +148,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateUserProfile = async (data: Partial<UserProfile>) => {
     if (!currentUser) return;
-    const userRef = doc(db, 'users', currentUser.id);
     const updatedUser = { ...currentUser, ...data };
-    await setDoc(userRef, updatedUser, { merge: true });
+    try {
+      const userRef = doc(db, 'users', currentUser.id);
+      await setDoc(userRef, updatedUser, { merge: true });
+    } catch (e: any) {
+      console.warn('Firebase update failed, falling back to local storage', e);
+    }
     setCurrentUser(updatedUser);
     localStorage.setItem('projectflow_demo_user', JSON.stringify(updatedUser));
   };
