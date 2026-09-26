@@ -349,6 +349,7 @@ export interface ProjectIdea {
   requiredSkills: string[];
   proposedBy: string;
   proposedByName: string;
+  institutionId?: string;
   role: 'student' | 'mentor';
   status: 'open' | 'in_review' | 'approved' | 'closed';
   joinRequests: {

@@ -830,13 +830,22 @@ class ProjectFlowDataService {
 
   // --- IDEA MARKETPLACE ---
   public getIdeas(): ProjectIdea[] {
-    return [...this.ideas];
+    let filtered = [...this.ideas];
+    if (this.currentUserContext && this.currentUserContext.role !== 'platform_admin') {
+      const userInst = this.currentUserContext.institutionId;
+      filtered = filtered.filter(i => {
+        const ideaInst = i.institutionId || 'inst-ait-01'; // Default legacy ideas to inst-ait-01
+        return ideaInst === userInst;
+      });
+    }
+    return filtered;
   }
 
   public createIdea(idea: Omit<ProjectIdea, 'id' | 'createdAt' | 'joinRequests'>): ProjectIdea {
     const newIdea: ProjectIdea = {
       ...idea,
       id: `idea-${Date.now()}`,
+      institutionId: idea.institutionId || this.currentUserContext?.institutionId || 'inst-default',
       joinRequests: [],
       createdAt: new Date().toISOString(),
     };
