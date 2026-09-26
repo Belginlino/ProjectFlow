@@ -44,10 +44,23 @@ export const GraphPage: React.FC = () => {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="print-container">
       <style>{`
         @media print {
+          @page { size: landscape; margin: 1cm; }
           .no-print { display: none !important; }
-          body { background: white !important; }
-          .card, .card-glass { box-shadow: none !important; border: 1px solid #ddd !important; }
+          body { background: white !important; margin: 0; padding: 0; }
+          .card, .card-glass, .graph-container { box-shadow: none !important; border: 1px solid #ddd !important; }
           * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+          
+          .graph-columns-container {
+            overflow: visible !important;
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            width: 100% !important;
+          }
+          .graph-columns-container > div {
+            flex: 1 1 0 !important;
+            min-width: 0 !important;
+            word-wrap: break-word !important;
+          }
         }
       `}</style>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>

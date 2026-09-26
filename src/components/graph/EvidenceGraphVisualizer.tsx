@@ -265,6 +265,7 @@ export const EvidenceGraphVisualizer: React.FC<EvidenceGraphVisualizerProps> = (
 
       {/* 5-Column Visual Directed Pipeline */}
       <div
+        className="graph-columns-container"
         style={{
           display: 'grid',
           gridTemplateColumns:
