@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { GitMerge, Mail, Lock, User, AlertCircle, Eye, EyeOff, Sparkles, GraduationCap, Award, ShieldCheck, Settings } from 'lucide-react';
+import { dataService } from '../services/dataService';
+import { GitMerge, Mail, Lock, User, AlertCircle, Eye, EyeOff, Sparkles, GraduationCap, Award, ShieldCheck, Settings, RefreshCw } from 'lucide-react';
 import { Button } from '../components/common/Button';
 
 const GoogleIcon = () => (
@@ -214,6 +215,24 @@ export const LoginPage: React.FC = () => {
             <Button variant="outline" size="sm" onClick={() => handleDemoLogin('admin@projectflow.edu')} disabled={submitting}>
               Admin
             </Button>
+          </div>
+          
+          <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => {
+                dataService.resetDemoData();
+                localStorage.removeItem('projectflow_demo_user');
+                window.location.reload();
+              }} 
+              style={{ color: 'var(--danger)', borderColor: 'var(--danger-border)', gap: '0.5rem', margin: '0 auto' }}
+            >
+              <RefreshCw size={14} /> Reset All Demo Data
+            </Button>
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+              Click this if the dashboard is empty to reset to the original hackathon seed data.
+            </p>
           </div>
         </div>
       </div>
