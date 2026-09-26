@@ -218,28 +218,37 @@ export const IdeasPage: React.FC = () => {
                 Proposed by <strong style={{ color: 'var(--text-primary)' }}>{idea.proposedByName}</strong> ({idea.role})
               </div>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  leftIcon={<GraduationCap size={14} />}
-                  onClick={() => {
-                    setSelectedIdea(idea);
-                    setIsMentorModalOpen(true);
-                  }}
-                >
-                  Request Mentor
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  leftIcon={<Users size={14} />}
-                  onClick={() => {
-                    setSelectedIdea(idea);
-                    setIsJoinModalOpen(true);
-                  }}
-                >
-                  Join Team {idea.joinRequests.length > 0 && `(${idea.joinRequests.length})`}
-                </Button>
+                {currentUser?.role === 'student' && idea.proposedBy === currentUser.id && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<GraduationCap size={14} />}
+                    onClick={() => {
+                      setSelectedIdea(idea);
+                      setIsMentorModalOpen(true);
+                    }}
+                  >
+                    Request Mentor
+                  </Button>
+                )}
+                {currentUser?.role === 'student' && idea.proposedBy !== currentUser.id && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    leftIcon={<Users size={14} />}
+                    onClick={() => {
+                      setSelectedIdea(idea);
+                      setIsJoinModalOpen(true);
+                    }}
+                  >
+                    Join Team {idea.joinRequests.length > 0 && `(${idea.joinRequests.length})`}
+                  </Button>
+                )}
+                {currentUser?.role !== 'student' && (
+                  <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    Student Idea
+                  </span>
+                )}
               </div>
             </div>
           </div>
