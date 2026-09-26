@@ -73,22 +73,22 @@ class ProjectFlowDataService {
   }
 
   public seedInitialData() {
-    this.projects = [];
-    this.requirements = [];
-    this.tasks = [];
-    this.evidence = [];
-    this.evidenceLinks = [];
-    this.reviews = [];
-    this.changeRequests = [];
-    this.healthAlerts = [];
-    this.rubrics = [];
-    this.evaluations = [];
-    this.vivaQuestions = [];
-    this.outcomes = [];
-    this.skills = [];
-    this.reflections = [];
-    this.ideas = [];
-    this.notifications = [];
+    this.projects = [INITIAL_PROJECT];
+    this.requirements = [...INITIAL_REQUIREMENTS];
+    this.tasks = [...INITIAL_TASKS];
+    this.evidence = [...INITIAL_EVIDENCE];
+    this.evidenceLinks = [...INITIAL_EVIDENCE_LINKS];
+    this.reviews = [...INITIAL_REVIEWS];
+    this.changeRequests = [...INITIAL_CHANGE_REQUESTS];
+    this.healthAlerts = [...INITIAL_HEALTH_ALERTS];
+    this.rubrics = [...INITIAL_RUBRICS];
+    this.evaluations = [...INITIAL_EVALUATIONS];
+    this.vivaQuestions = [...INITIAL_VIVA_QUESTIONS];
+    this.outcomes = [...INITIAL_OUTCOMES];
+    this.skills = [...INITIAL_SKILLS];
+    this.reflections = [...INITIAL_REFLECTIONS];
+    this.ideas = [...INITIAL_IDEAS];
+    this.notifications = [...INITIAL_NOTIFICATIONS];
     this.auditLogs = [];
     this.saveToStorage();
   }
