@@ -6,10 +6,14 @@ import { Badge } from '../components/common/Badge';
 import { Button } from '../components/common/Button';
 import { dataService } from '../services/dataService';
 import { Evidence } from '../types';
+import { Printer, Filter } from 'lucide-react';
 
 export const GraphPage: React.FC = () => {
   const { onOpenEvidence } = useOutletContext<{ onOpenEvidence: (ev: Evidence) => void }>();
-  const project = dataService.getProjects()[0];
+  const projects = dataService.getProjects();
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(projects[0]?.id || null);
+
+  const project = projects.find(p => p.id === selectedProjectId) || projects[0];
 
   if (!project) {
     return (
@@ -36,16 +40,44 @@ export const GraphPage: React.FC = () => {
       setInspectedNode({ type, data });
     }
   };
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>
-          Project Evidence Graph Visualizer
-        </h1>
-        <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-          Direct graphical mapping of the complete academic lifecycle from Requirements to Evaluations
-        </p>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }} className="print-container">
+      <style>{`
+        @media print {
+          .no-print { display: none !important; }
+          body { background: white !important; }
+          .card, .card-glass { box-shadow: none !important; border: 1px solid #ddd !important; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+      `}</style>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--text-primary)' }}>
+            Project Evidence Graph Visualizer
+          </h1>
+          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+            Direct graphical mapping of the complete academic lifecycle from Requirements to Evaluations
+          </p>
+        </div>
+        
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }} className="no-print">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Filter size={16} color="var(--text-muted)" />
+            <select
+              className="form-input"
+              style={{ minWidth: '250px', padding: '0.375rem 0.75rem' }}
+              value={selectedProjectId || ''}
+              onChange={(e) => setSelectedProjectId(e.target.value)}
+            >
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>{p.title} ({p.status})</option>
+              ))}
+            </select>
+          </div>
+          <Button variant="outline" leftIcon={<Printer size={16} />} onClick={() => window.print()}>
+            Print Report
+          </Button>
+        </div>
       </div>
 
       <EvidenceGraphVisualizer
