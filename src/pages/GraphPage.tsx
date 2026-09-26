@@ -59,7 +59,9 @@ export const GraphPage: React.FC = () => {
           .graph-columns-container > div {
             flex: 1 1 0 !important;
             min-width: 0 !important;
+            min-height: auto !important; /* Forces columns to collapse if empty, preventing huge vertical gaps */
             word-wrap: break-word !important;
+            page-break-inside: avoid !important; /* Prevents columns from snapping weirdly across pages */
           }
         }
       `}</style>

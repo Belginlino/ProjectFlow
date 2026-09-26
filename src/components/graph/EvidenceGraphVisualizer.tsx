@@ -210,10 +210,10 @@ export const EvidenceGraphVisualizer: React.FC<EvidenceGraphVisualizerProps> = (
             { id: 'reviews', label: '4. Reviews & CRs', count: reviews.length + changeRequests.length },
             { id: 'evaluations', label: '5. Evaluations', count: evaluations.length },
           ].map((cat) => (
-            <button
+            <div
               key={cat.id}
-              type="button"
               onClick={() => setSelectedCategory(cat.id)}
+              className="print-stage-pill"
               style={{
                 padding: '0.35rem 0.75rem',
                 fontSize: '0.75rem',
@@ -241,14 +241,14 @@ export const EvidenceGraphVisualizer: React.FC<EvidenceGraphVisualizerProps> = (
               >
                 {cat.count}
               </span>
-            </button>
+            </div>
           ))}
         </div>
 
         {searchQuery && (
-          <button
-            type="button"
+          <div
             onClick={() => setSearchQuery('')}
+            className="print-stage-pill"
             style={{
               fontSize: '0.75rem',
               color: '#EF4444',
@@ -256,10 +256,12 @@ export const EvidenceGraphVisualizer: React.FC<EvidenceGraphVisualizerProps> = (
               border: 'none',
               cursor: 'pointer',
               fontWeight: 600,
+              display: 'inline-flex',
+              padding: '0.35rem',
             }}
           >
             Clear Search
-          </button>
+          </div>
         )}
       </div>
 
@@ -281,6 +283,7 @@ export const EvidenceGraphVisualizer: React.FC<EvidenceGraphVisualizerProps> = (
         {/* Column 1: Requirements */}
         {showColumn('requirements') && (
           <div
+            className="graph-col"
             style={{
               background: '#F9FAFB',
               border: '1px solid #E5E7EB',
