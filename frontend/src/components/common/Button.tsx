@@ -33,11 +33,11 @@ export const Button: React.FC<ButtonProps> = ({
       {isLoading ? (
         <Loader2 className="animate-spin" size={16} aria-hidden="true" />
       ) : (
-        leftIcon && <span className="btn-icon" aria-hidden="true">{leftIcon}</span>
+        leftIcon && <span className="btn-icon-wrapper" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} aria-hidden="true">{leftIcon}</span>
       )}
-      <span>{children}</span>
+      {children}
       {!isLoading && rightIcon && (
-        <span className="btn-icon" aria-hidden="true">{rightIcon}</span>
+        <span className="btn-icon-wrapper" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} aria-hidden="true">{rightIcon}</span>
       )}
     </button>
   );
