@@ -19,6 +19,7 @@ import { PortfolioPage } from './pages/PortfolioPage';
 import { AdminPage } from './pages/AdminPage';
 import { IntegrationsPage } from './pages/IntegrationsPage';
 import { OnboardingPage } from './pages/OnboardingPage';
+import { SettingsPage } from './pages/SettingsPage';
 
 const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading } = useAuth();
@@ -100,6 +101,7 @@ export const App: React.FC = () => {
             <Route path="/portfolio" element={<RoleGuard allowedRoles={['student']}><PortfolioPage /></RoleGuard>} />
             <Route path="/audit" element={<RoleGuard allowedRoles={['institution_admin']}><AuditPage /></RoleGuard>} />
             <Route path="/admin" element={<RoleGuard allowedRoles={['institution_admin', 'dept_admin']}><AdminPage /></RoleGuard>} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

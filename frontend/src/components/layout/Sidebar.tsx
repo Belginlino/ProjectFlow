@@ -119,6 +119,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </div>
         ))}
       </nav>
+      <div style={{ padding: "0.5rem 0.75rem", borderTop: "1px solid var(--border-subtle)" }}>
+        <NavLink 
+          to="/settings" 
+          className={({ isActive }) => "nav-link" + (isActive ? " active" : "")}
+          onClick={onClose}
+        >
+          <Settings size={15} />
+          <span>Settings</span>
+        </NavLink>
+      </div>
       <div className="sidebar-footer">v1.0.0 Evidence-Centered Academic Platform</div>
     </aside>
   );

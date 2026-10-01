@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Bell, ChevronDown, LogOut, Search, Check, RefreshCw, Sparkles, User, Shield, Award, CheckCircle, AlertTriangle, Menu } from "lucide-react";
+import { Plus, Bell, ChevronDown, LogOut, Search, Check, RefreshCw, Sparkles, User, Shield, Award, CheckCircle, AlertTriangle, Menu, Settings } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { dataService } from "../../services/dataService";
 import { AppNotification } from "../../types";
@@ -243,7 +243,17 @@ export const Header: React.FC<HeaderProps> = ({ onMenuClick }) => {
                 <div style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{currentUser?.email}</div>
               </div>
 
-
+              <button
+                onClick={() => {
+                  setShowProfile(false);
+                  navigate("/settings");
+                }}
+                style={{ display: "flex", alignItems: "center", gap: "0.5rem", width: "100%", padding: "0.45rem 0.75rem", fontSize: "0.8125rem", color: "var(--text-primary)", background: "transparent", border: "none", borderRadius: "var(--radius-xs)", cursor: "pointer", fontFamily: "var(--font-sans)", marginBottom: "0.25rem" }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--bg-surface-elevated)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+              >
+                <Settings size={13} /> Settings & Profile
+              </button>
 
               <button
                 onClick={() => {
